@@ -1,0 +1,102 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\addbibresource{literature.bib}
+
+\begin{document}
+\title{From the Cloud to the Edge: Applying Cloud Native Technologies to the Aviation Sector}
+\author{\IEEEauthorblockN{Christian Rebischke}
+\IEEEauthorblockA{Clausthal University of Technology\\
+Christian.Rebischke@tu-clausthal.de}}
+
+\maketitle
+
+\begin{abstract}
+Software has become the daily driver for nearly every industry. It can be found
+in automotives, ships, production sites, nine to five office jobs and the aviation
+sector. The use of software and control engineering lead to self-landing rockets,
+artificial intelligence controlled unmanned aerial vehicles and adaptive touch displays
+in space capsules like SpaceX's Dragon capsule. Therefore software becomes an
+important part in the supply chain of aviation and plays an important role
+in flight safety, resiliency and scalability. This proposal summarizes a possible
+research topic for a master thesis that tries to connect the dots between Cloud Native
+technologies and the aviation sector for revealing areas of application in flight safety, resiliency
+and scalability of service oriented architectures in the aviation sector.
+\end{abstract}
+
+\IEEEpeerreviewmaketitle
+
+\section*{Introduction}
+In the year of 2015 the Linux Foundation founded along with several partners the Cloud Native Computing
+Foundation (CNCF) to help advance container technologies and align the tech industry
+around it's evolution\cite{CNCFFounding}. Since then the project has accomplished
+a founding of over 15 billion US dollars and an accumulated market capitalization 
+over all contributing companies of over 15 trillion US dollars\cite{CNCFLandscape}.
+In 2019 the project tracked more than 1200 projects, products and companies from different
+industry sectors\cite{CNCFAnnualReport2019}. The scope of these projects reaches from
+high available and high scalable container orchestration, over service discovery,
+application definition and image builds to continuous integration and continuous delivery.
+Single CNCF projects found already its way into the aviation sector. In 2020 the Department
+of Defense of the United States of America announced the first deployment of the
+container orchestrator and scheduler Kubernetes on the U-2 spy plane. This deployment
+of Cloud-Native software gives just one short glimpse on the possibilities for
+this young set of technologies.
+
+\section*{Motivation}
+Service Oriented Architecture (SOA) made the deployment of software on any possible 
+system fairly easy and fast, but it introduced other possible problems. This short
+section tries to give a good overview over possible challenges for service oriented
+architecture and tries to give examples in the aviation sector.
+
+\subsection{Service Resiliency}
+A software service is not a fire-and-forget like military missile. The service
+needs constant monitoring to verify its health status based on certain metrics
+and if such metrics violate certain conditions a service scheduler should
+take measures to change the current status to a healthy status again. Just imagine
+a service that provides a REST API for communicating the current plane position
+to other services like the traffic collision avoidance system (TCAS). A wrong communicated
+result by the service or a failure of the service could have a catastrophic scale.
+A monitoring system is needed that checks such service, verifies the state and takes
+measures like alerting the pilots or re-scheduling the service. How can such
+a system behave, look like and work? How should such a monitoring system look like?
+
+\subsection{Service Security}
+Due to the intense usage of the Service Oriented Architecture in the aviation sector
+the usage of open source software has grown tremendously and with it grew
+the possible inclusion of security vulnerabilities. A secure software supply chain
+has become an important part in the production of aviation software. How can we make
+sure that we are running the same software in our test environment on the ground
+as on our planes in the air? How do we make sure that our software is free of possible
+security vulnerabilities and how do we detect those? And how we can defend ourselves
+from possible security violations and hackers tamping with our software supply chain?
+
+\subsection{Service Scalability}
+The number of planes in the air grew in the last decade (the current Covid-19 pandemic excluded).
+This makes it much more difficult to monitor the flight traffic and it introduces additional
+cost to flight traffic monitoring agencies. Imagine a company or agency that monitors over
+90\% of planes only during the week days. During the weekends such a giantic setup would not be needed.
+This introduces high costs to the flight traffic monitoring service. Costs that could have been 
+avoided if the flight traffic monitoring service would make use of autoscalable cloud-native technologies.
+Modern cloud-native technologies could be able to automatically scale up and down on the current
+demand and could adapt on current flight traffic, while maintaining a high service resiliency
+and flight safety due to possible backup services.
+
+\section*{Summary and Approach}
+The last three subsections gave a good overview over possible fields of application
+for Cloud Native technologies. This proposal has introduced questions for the aviation
+sector that clearly needs more research. A possible idea for evaluating the mentioned
+problems could be adapting a Service Oriented Flight Architecture to the Cloud-Native
+world via using Cloud-Native technologies and trying to introduce state-of-the-art 
+solutions for problems on the cloud while adapting them to the edge. Cloud technologies
+has proven to be highly scalable and resilient, why not trying to gain the same benefits
+for the aviation sector? A possible master thesis could determine similarities between
+cloud and aviation demands and could show off possible solutions for vice-versa.
+The goal could be to build a full secure software supply chain for a Service Oriented
+Architecture while not losing the scope of resiliency and scalability.
+\nocite{*}
+\printbibliography[]{}
+\end{document}
