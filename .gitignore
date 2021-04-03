@@ -275,3 +275,6 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# ignore literature folder for hard copies of literature
+literature
