@@ -1,0 +1,63 @@
+\documentclass[titlepage]{report}
+\usepackage[backend=biber,style=numeric]{biblatex}
+\addbibresource{literature.bib}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{hyphenat}
+\usepackage{glossaries}
+\usepackage{array}
+\usepackage{calc}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+% \usepackage{xcolor} https://tex.stackexchange.com/q/466147
+\usepackage{bytefield}
+\usepackage{float}
+\usepackage{eurosym}
+\usepackage{tabu}
+\usepackage{caption}
+\lstset{%
+    frame=tb,
+    tabsize=4,
+    numbers=left,
+    breaklines=true,
+}
+\setcounter{biburllcpenalty}{9001}
+\makeglossaries{}
+\input{glossaries.tex}
+\title{From the Cloud to the Clouds: Taking Integrated Modular Avionics on a New Level with Cloud-Native Technologies}
+\author{Christian Rebischke\\
+Clausthal University of Technology\\
+Student ID: 432108 \\
+E-Mail: Christian.Rebischke@tu-clausthal.de}
+\begin{document}
+\maketitle
+\chapter*{Acknowledgement}
+\chapter*{Statutory Declaration}
+This master thesis is submitted in partial fulfilment of the requirements for the Clausthal
+University of Technology. I hereby declare that this dissertation is my own work and
+contains nothing which is the outcome of work done in collaboration with others,
+except as specified in the text and acknowledgements. The contributions of any other
+supervisors to this thesis are made with specific reference.
+\\
+\\
+Clausthal-Zellerfeld, \today
+\\
+\\
+Christian Rebischke
+\chapter*{Abstract}
+The aim of this thesis is to give an overview over
+\chapter*{Zusammenfassung}
+\tableofcontents
+\chapter{Introduction}
+\nocite{*}
+\printbibliography{}
+\lstlistoflistings{}
+\listoftables{}
+\listoffigures
+\printglossary{}
+\end{document}
