@@ -84,15 +84,35 @@ to 38.9 million flights (2019)\cite{STATISTA}. This growing number of performed 
 pressure on the global aviation industry as a whole. The permanent price pressure lead to demands of
 cheaper, lighter and smaller flight components\cite{prisaznuk1992integrated}. Every inch and every gramm 
 counts in the global business of civil aviation, because every inch less means one possible paying customer 
-more on the plane and every gramm less means less expensive fuel demands for the flight. As a result
-the aviation industry has been actively searching for solutions for the aforementioned problems.
-The ongoing digitalization brought different ideas for technological improvements in the aviation sector.
-This master thesis aims to highlight the main problems and a few of these ideas. Furthermore
-it tries to find related problems in the field of cloud computing and tries to connect these
-problems with their possible solutions with the known problems in the aviation industry. The ultimate
-goal of this thesis is to provide alternative research to the existing proposed solutions for the explored
-problems in the flight industry and to create a more heterogenous field of view on the current research
-about architectures in avionics.
+more on the plane and every gramm less means less expensive fuel demands for the flight. But it is not only
+the underlying architecture and the corresponding hardware that plays a big role in the aviation business.
+The software forming these architectures and running on these devices plays an equal important role
+in the aviation industry. The development of software is difficult, error-prone, tedious and expensive. This leads
+to the question why the aviation industry is not exploiting resources and development processes from other industry branches.
+The open source software movement provides a staggering amount of different technologies for solving problems
+that are not too different to the problems from the aviation industry. Reasons for this development paralysis
+are regulation and certification. The civil aviation sector is strictly regulated, thus experimenting with alternatives
+is expensive and difficult. Furthermore, the existing certification companies are not known for their disruptive
+technology announcements. Nevertheless this thesis tries to explore a few of these alternatives and tries to
+suggest topics that might be interesting for further research. Hopefully it will help justifying further research
+in this area and incite changes in the inflexible regulation and certification chain. The \gls{us} military sector 
+and the \gls{us} space industry seem to be more willing to experiment with new or existing open source software. 
+For example, the private \gls{us} space company \emph{SpaceX} had tremendous success with Linux as operating 
+system on their \emph{Dragon} spacecraft\cite{gruen2012linux} and Linux is not only being used by 
+SpaceX\cite{leppinen2017current}. Of course this success is only possible, because the space industry 
+is much more isolated and kept secret than the civil aviation industry with their international standards and 
+guidelines. One of these standards is the \gls{do178b} certification and its successor \gls{do178c} from the \gls{RTCA}. 
+This certification has strict requirements on flight operating systems. A few of these requirements are real-time capabilities
+and a transparent and documented development process with design decisions and other documents. While
+real-time capabilities can be easily added via soft patches (\emph{SpaceX} is exactly doing this with their
+\emph{Dragon} spacecraft\cite{gruen2012linux}), the documentation and development process seem to be an invincible
+obstacle for a successful certification process. Another prominent example of open source adoption is the operation
+of the Cloud Native container orchestration engine Kubernetes in military fighter planes, like the \gls{us} military
+plane \emph{U-2}\cite{U2Kubernetes}. Unfortunately there is no research on that topic. This thesis tries to change this
+as well and tries to connect existing research in both areas for creating synergies between them.
+
+
+\chapter{Federated Avionics}
 \chapter{Integrated Modular Avionics}
 
 One of these technologies is \gls{ima}. \gls{ima} promises a price, space and weight cut, leading to more 
