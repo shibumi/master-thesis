@@ -118,17 +118,26 @@ most important challenges in these.
 To understand the background of this thesis better it is recommended to understand the journey of flight system architectures.
 Around the 1970's avionics systems evolved from traditional point-to-point wiring to a standard data bus with a federated system
 architecture\cite{xiong2009advanced}. This federated system
-has been implemented as distributed collection of dedicated computing resources consisting of \gls{lru} or \gls{lrm}\cite{watkins2007transitioning}.
-\gls{lru} and \gls{lrm} are modular components that are specifically designed for pre-determined tasks, such as
+has been implemented as distributed collection of dedicated computing resources consisting of \glspl{lru} or \glspl{lrm}\cite{watkins2007transitioning}.
+\glspl{lru} and \glspl{lrm} are modular components that are specifically designed for pre-determined tasks, such as
 interacting with certain flight sensors/effectors\cite{lemke1985comparative}.
 Sensors are reading data and effectors are executing certain actions, for example moving the flight gears.
-Each \gls{lru} or \gls{lrm} contained one specific avionic workload and its required computing resources (processors, 
+The main advantages of \glspl{lru} are their atomic behavior and their strict and easily certifiable system design.
+Each \gls{lru} or \gls{lrm} contains one specific avionic workload and its required computing resources (processors, 
 \gls{io} modules, main memory, hard disks and network cards). \autoref{fig:federated_architecture} shows a simplified model
-of the federated architecture with distributed \gls{lru}, sensors, effectors, and a global data bus connecting the components.
+of the federated architecture with distributed \glspl{lru}, sensors, effectors, and a global data bus connecting the components.
 It visualizes the enormous effort and the huge amount of cables. Duplicating the systems achieves service redundancy and ensures
-system reliability\cite{prisaznuk1992integrated}, but duplicating also means duplicating the \gls{lru} as a whole. This does not
+system reliability\cite{prisaznuk1992integrated}, for the price of duplicating the \gls{lru} as a whole. This does not
 only mean a duplicated hosted function (the actually functionality of the \gls{lru}), it also means double as much cables,
-processors, main memory, network cards and connectors.
+processors, main memory, network cards and connectors. Weight and complexity disadvantages are not the only problems with the federated
+architecture approach. Having a dedicated hardware stack for each \gls{lru} means not fully saturated potential. Due to safety reasons
+the \gls{lru} will very unlikely use all of its resources. This means there will be always a spare amount of main memory, hard disk
+or network saturation. Added up over the whole federation architecture this means a huge amount of unused resource potential and unnecessary
+energy consumption that could be used for other functionality. The task-specific development of \glspl{lru} leads to problems with 
+functionality extensions, meaning that \glspl{lru} are not easily upgradable or extendable and therefore adjustable to new tasks or functionality.
+Moreover in the past the development of federated architecture components has been closed source and very vendor specific. Specifications for
+federated architecture components were mostly hidden behind a paywall or non disclosure agreements leading to a decreased developer efficiency
+and less market competition due to monopolism. \glspl{lru} are not easily exchangable between vendors. 
 
 \begin{figure}
     \centering
