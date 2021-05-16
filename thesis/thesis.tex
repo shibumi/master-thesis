@@ -114,15 +114,37 @@ these two areas we need to understand both of these areas first.
 Therefore, the next chapter will give an introduction to the history of software architectures on planes and will highlight the 
 most important challenges in these.
 
-
 \chapter{Federated Avionics}
+To understand the background of this thesis better it is recommended to understand the journey of flight system architectures.
+Around the 1970's avionics systems evolved from traditional point-to-point wiring to a standard data bus with a federated system
+architecture\cite{xiong2009advanced}. This federated system
+has been implemented as distributed collection of dedicated computing resources consisting of \gls{lru} or \gls{lrm}\cite{watkins2007transitioning}.
+\gls{lru} and \gls{lrm} are modular components that are specifically designed for pre-determined tasks, such as
+interacting with certain flight sensors/effectors\cite{lemke1985comparative}.
+Sensors are reading data and effectors are executing certain actions, for example moving the flight gears.
+Each \gls{lru} or \gls{lrm} contained one specific avionic workload and its required computing resources (processors, 
+\gls{io} modules, main memory, hard disks and network cards). \autoref{fig:federated_architecture} shows a simplified model
+of the federated architecture with distributed \gls{lru}, sensors, effectors, and a global data bus connecting the components.
+It visualizes the enormous effort and the huge amount of cables. Duplicating the systems achieves service redundancy and ensures
+system reliability\cite{prisaznuk1992integrated}, but duplicating also means duplicating the \gls{lru} as a whole. This does not
+only mean a duplicated hosted function (the actually functionality of the \gls{lru}), it also means double as much cables,
+processors, main memory, network cards and connectors.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/federated_architecture.pdf}
+    \caption{Simplified visualization of the federated avionics architecture, showing \gls{lru}, sensors, effectors, and the global data bus}\label{fig:federated_architecture}
+\end{figure}
+
 \chapter{Integrated Modular Avionics}
 
 One of these technologies is \gls{ima}. \gls{ima} promises a price, space and weight cut, leading to more 
 space and weight for customers, goods or other equipment (for example weapon payload in the military sector)
 via using fewer, more centralized processing units. The aim of this master thesis is the exploration
 of the concepts and challenges behind \gls{ima} and comparing it to existing solutions from the new forming
-Cloud-Native initiative driven by cloud companies.  
+Cloud-Native initiative driven by cloud companies.
+
+\chapter{Distributed Integrated Modular Avionics}
 \chapter{Related Work}
 \nocite{*}
 \printbibliography{}
