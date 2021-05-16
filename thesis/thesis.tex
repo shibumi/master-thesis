@@ -137,15 +137,24 @@ energy consumption that could be used for other functionality. The task-specific
 functionality extensions, meaning that \glspl{lru} are not easily upgradable or extendable and therefore adjustable to new tasks or functionality.
 Moreover in the past the development of federated architecture components has been closed source and very vendor specific. Specifications for
 federated architecture components were mostly hidden behind a paywall or non disclosure agreements leading to a decreased developer efficiency
-and less market competition due to monopolism. \glspl{lru} are not easily exchangable between vendors. 
+and less market competition due to monopolism. \glspl{lru} are not easily exchangable between vendors. \autoref{fig:federated_architecture_components}
+displays the internal structure of the \gls{lru} and its interaction with other \gls{lru}. Each \gls{lru} provides its own hardware stack and hosts
+exactly one avionic function. It is possible for one \gls{lru} to speak with multiple sensors or effectors, but this does not change their core
+purpose of hosting exactly one function. In \autoref{chapter:integrated_modular_avionics} this thesis will investigate the next
+step in the evolution of flight system architectures and how the disadvantages of federated architectures can be fixed.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/federated_architecture.pdf}
+    \includegraphics[width=1.0\textwidth]{figures/federated_architecture.pdf}
     \caption{Simplified visualization of the federated avionics architecture, showing \gls{lru}, sensors, effectors, and the global data bus}\label{fig:federated_architecture}
 \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/federated_architecture_components.pdf}
+    \caption{Internal system architecture and interaction between \glspl{lru}}\label{fig:federated_architecture_components}
+\end{figure}
 
-\chapter{Integrated Modular Avionics}
+\chapter{Integrated Modular Avionics}\label{chapter:integrated_modular_avionics}
 
 One of these technologies is \gls{ima}. \gls{ima} promises a price, space and weight cut, leading to more 
 space and weight for customers, goods or other equipment (for example weapon payload in the military sector)
