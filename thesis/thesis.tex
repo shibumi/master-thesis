@@ -162,11 +162,28 @@ to racks in a datacenter. They can host multiple processing units or server blad
 consisting of a \gls{cpu}, \gls{ram}, disk space and connectors for input and output\cite{prisaznuk1992integrated}. These servers are then plugged-in 
 into the flight cabinet. Each server can host more than one avionic function and each function is separated into partitions.
 Partitions can be created on different ways and has been standardized in \gls{arinc653}\cite{vanderleest2010arinc}. The most common approach
-is the use of a hypervisor (how this is implemented and and more can be found in \autoref{section:workload_partitioning_strategies}). The flight cabinet provides power and required network connection to the plane's global data bus
-as described in \gls{arinc629}\cite{isik2010arinc}. Using central flight cabinets cannot replace all \glspl{lru} in the plane\cite{watkins2007transitioning},
-hence additional \glspl{lru} might be needed. Another important factor of avionic functions hosted in flight cabinets is that they differ in reliability requirements. For example
-the system that controls the flight entertainment system is less important than the system that controls the cabin air supply or the temperature. Therefore, it is needed to designate
-each hosted function to a defined priority indicator.
+is the use of a hypervisor (how this is implemented and and more can be found in \autoref{section:workload_partitioning_strategies}). 
+The flight cabinet provides power and required network connection to the plane's global data bus
+as described in \gls{arinc629}\cite{isik2010arinc} or \gls{arinc429}\cite{fuchs2012evolution}. \gls{arinc629} is the successor of the data bus \gls{arinc429}.
+Effectors and sensors communicate with the flight cabinet over \gls{arinc629}\cite{prisaznuk1992integrated}, hence these devices must be \gls{arinc629} compatible.
+Sensors or effectors that are incompatible with \gls{arinc629} may communicate over remote data concentrators. Remote data concentrators are gathering data from sensors
+or sending data to effectors over traditional \gls{io} connections. The gathered data or the received actions are communicated via \gls{arinc629} or \gls{arinc429}. Therefore,
+remote data concentrators act as bridges between such devices and the data bus.
+Using central flight cabinets cannot replace all \glspl{lru} in the plane\cite{watkins2007transitioning}. These \glspl{lru} needs to be either integrated into the flight cabinets
+or connected to the global data bus, for examplev via remote data concentrators. \autoref{fig:ima} depicts a simplified view on integrated modular avionics architecture in a plane.
+The number of \glspl{lru} has been reduced and flight cabinets has been introduced. Remote data concentrators are working as bridges between sensors and effectors incompatible
+with the data bus standard and the hosted functions in the flight cabinets.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/ima.pdf}
+    \caption{Simplified visualization of the integrated modular avionics architecture, showing sensors, effectors, cabinets and the data bus \glspl{lru}}\label{fig:ima}
+\end{figure}
+
+
+Another important factor of avionic functions hosted in flight cabinets is that they differ in reliability requirements. For example
+the system that controls the flight entertainment system is less important than the system that controls the cabin air supply or the temperature. Therefore, every hosted function needs a
+priority level.
 
 
 \section{Distributed Integrated Modular Avionics}\label{section:distributed_integrated_modular_avionics}
