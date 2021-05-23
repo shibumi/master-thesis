@@ -78,7 +78,7 @@ und Ideen isoliert. Diese gewonnenen Informationen werden nachfolgend aktuellen 
 gegenüber gestellt und potentielle Lösungen vorgeschlagen.
 
 \tableofcontents
-\chapter{Introduction}
+\chapter{Introduction}\label{chapter:introduction}
 The number of performed flights by global airline industries increased from 23.8 million flights (2004)
 to 38.9 million flights (2019)\cite{STATISTA}. This growing number of performed flights puts an enormous
 pressure on the global aviation industry as a whole. The permanent price pressure lead to demands of
@@ -114,8 +114,8 @@ these two areas we need to understand both of these areas first.
 Therefore, the next chapter will give an introduction to the history of software architectures on planes and will highlight the 
 most important challenges in these.
 
-\chapter{Related Work}
-\section{Federated Avionics}
+\chapter{Related Work}\label{chapter:related_work}
+\section{Federated Avionics}\label{section:federated_avionics}
 To understand the background of this thesis better it is recommended to understand the journey of flight system architectures.
 Around the 1970's avionics systems evolved from traditional point-to-point wiring to a standard data bus with a federated system
 architecture\cite{xiong2009advanced}. This federated system
@@ -141,7 +141,7 @@ federated architecture components were mostly hidden behind a paywall or non dis
 and less market competition due to monopolism. \glspl{lru} are not easily exchangable between vendors. \autoref{fig:federated_architecture_components}
 displays the internal structure of the \gls{lru} and its interaction with other \gls{lru}. Each \gls{lru} provides its own hardware stack and hosts
 exactly one avionic function. It is possible for one \gls{lru} to speak with multiple sensors or effectors, but this does not change their core
-purpose of hosting exactly one function. In \autoref{chapter:integrated_modular_avionics} this thesis will investigate the next
+purpose of hosting exactly one function. In \autoref{section:integrated_modular_avionics} this thesis will investigate the next
 step in the evolution of flight system architectures and how the disadvantages of federated architectures can be fixed.
 
 \begin{figure}
@@ -155,21 +155,23 @@ step in the evolution of flight system architectures and how the disadvantages o
     \caption{Internal system architecture and interaction between \glspl{lru}}\label{fig:federated_architecture_components}
 \end{figure}
 
-\section{Integrated Modular Avionics}\label{chapter:integrated_modular_avionics}
+\section{Integrated Modular Avionics}\label{section:integrated_modular_avionics}
 \glsfirst{ima} is the direct successor of the federated avionics architecture. The idea behind \gls{ima}
 is to consolidate the distributed hardware in flight cabinets. Flight cabinets are very similar
 to racks in a datacenter. They can host multiple processing units or server blades, each comes with its own hardware stack
 consisting of a \gls{cpu}, \gls{ram}, disk space and connectors for input and output\cite{prisaznuk1992integrated}. These servers are then plugged-in 
 into the flight cabinet. Each server can host more than one avionic function and each function is separated into partitions.
 Partitions can be created on different ways and has been standardized in \gls{arinc653}\cite{vanderleest2010arinc}. The most common approach
-is the use of a hypervisor. The flight cabinet provides power and required network connection to the plane's global data bus
+is the use of a hypervisor (how this is implemented and and more can be found in \autoref{section:workload_partitioning_strategies}). The flight cabinet provides power and required network connection to the plane's global data bus
 as described in \gls{arinc629}\cite{isik2010arinc}. Using central flight cabinets cannot replace all \glspl{lru} in the plane\cite{watkins2007transitioning},
-hence additional \glspl{lru} might be needed.  Another important factor of avionic functions hosted in flight cabinets is that they differ in reliability requirements. For example
+hence additional \glspl{lru} might be needed. Another important factor of avionic functions hosted in flight cabinets is that they differ in reliability requirements. For example
 the system that controls the flight entertainment system is less important than the system that controls the cabin air supply or the temperature. Therefore, it is needed to designate
 each hosted function to a defined priority indicator.
 
 
-\section{Distributed Integrated Modular Avionics}
+\section{Distributed Integrated Modular Avionics}\label{section:distributed_integrated_modular_avionics}
+
+\section{Workload Partitioning Strategies}\label{section:workload_partitioning_strategies}
 \nocite{*}
 \printbibliography{}
 \lstlistoflistings{}
