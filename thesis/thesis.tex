@@ -162,7 +162,7 @@ to racks in a datacenter. They can host multiple processing units or server blad
 consisting of a \gls{cpu}, \gls{ram}, disk space and connectors for input and output\cite{prisaznuk1992integrated}. These servers are then plugged-in 
 into the flight cabinet. Each server can host more than one avionic function and each function is allocated on partitions.
 Partitions can be created on different ways and has been standardized in \gls{arinc653}\cite{vanderleest2010arinc}. The most common approach
-is the use of a hypervisor (how this is implemented and and more can be found in \autoref{section:workload_partitioning_strategies}). 
+is the use of a hypervisor (how this is implemented is being discussed in \autoref{section:workload_partitioning_strategies}). 
 The flight cabinet provides power and required network connection to the plane's global data bus
 as described in \gls{arinc629}\cite{isik2010arinc} or \gls{arinc429}\cite{fuchs2012evolution}. \gls{arinc629} is the successor of the data bus \gls{arinc429}.
 Effectors and sensors communicate with the flight cabinet over \gls{arinc629}\cite{prisaznuk1992integrated}.
@@ -173,7 +173,7 @@ Using central flight cabinets cannot replace all \glspl{lru} in the plane\cite{w
 or connected to the global data bus, for example via remote data concentrators. \autoref{fig:ima} depicts a simplified view on integrated modular avionics architecture in a plane.
 The number of \glspl{lru} has been reduced and flight cabinets has been introduced. Remote data concentrators are working as bridges between sensors and effectors incompatible
 with the data bus standard and the hosted functions in the flight cabinets. \autoref{fig:ima_components} shows the modules inside of such a flight cabinet. The flight cabinet
-possess multiple processing units. Each processing unit is comparable to a dedicated computer with its own hardware and operating system. These processing units
+possesses multiple processing units. Each processing unit is comparable to a dedicated computer with its own hardware and operating system. These processing units
 are being connected via a network layer and each processing unit hosts one or more hosted functions. Hosted functions are isolated from each other and have
 a fixed predetermined set of resources and execution time.
 
