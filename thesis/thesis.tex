@@ -189,10 +189,23 @@ a fixed predetermined set of resources and execution time.
     \caption{View into a flight cabinet}\label{fig:ima_components}
 \end{figure}
 
+This system architecture has numerous advantages over the federated avionics architecture. Due to the more centralized approach \gls{ima}
+is able to reduce weight via better cable management and less distributed processing units. Computing resources can be used more efficiently
+via hosting multiple avionics functions on one processing unit. This leads to a higher system saturation. A positive side effect is less
+energy consumption and a smaller ecological footprint. The reduced weight creates more space for cargo, fuel or passengers. 
+Hardware consolidation leads to a consolidation of development efforts, which achieves cost and time savings\cite{watkins2007transitioning}.
+The common processor allows the developer to focus on the hosted avionic function, enabling a better development experience and less error-prone
+flight software. Separating software and hardware is a benefit during the certification process, because the certifying authority can certify
+software and hardware separately. This has just another huge impact on cost and time savings. Additionally, upgrading the hosted function
+becomes a lot easier, because of the hardware and software separation and less expensive hardware, due to standardized and more common
+processing units. Another important benefit can be achieved via adopting the idea of open software and hardware. An open system architecture
+with open standards can lead to a more competitive market due to industry-wide participation and exchangeability between hardware or
+software applications. This way development and hardware costs can be reduced, because development cost gets distributed among all contributing
+companies and mass production of standardized and open hardware shrinks marginal costs. Moreover, the decoupling between hardware and software
+can have a positive effect on new emerging companies, considering the lower costs\cite{watkins2007transitioning}. Software virtualization makes it easier to develop the
+software, without buying expensive physical development kits. The software is being virtualized, tested and can be much later evaluated on real hardware, speeding up
+the development process and time to market.
 
-Another important factor of avionic functions hosted in flight cabinets is that they differ in reliability requirements. For example
-the system that controls the flight entertainment system is less important than the system that controls the cabin air supply or the temperature. 
-Hence, every hosted function needs a priority level.
 
 
 \section{Distributed Integrated Modular Avionics}\label{section:distributed_integrated_modular_avionics}
