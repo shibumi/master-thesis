@@ -201,13 +201,24 @@ becomes a lot easier, because of the hardware and software separation and less e
 processing units. Another important benefit can be achieved via adopting the idea of open software and hardware. An open system architecture
 with open standards can lead to a more competitive market due to industry-wide participation and exchangeability between hardware or
 software applications. This way development and hardware costs can be reduced, because development cost gets distributed among all contributing
-companies and mass production of standardized and open hardware shrinks marginal costs. Moreover, the decoupling between hardware and software
+companies and mass production of standardized and open hardware shrinks marginal costs\cite{black2006open}. Moreover, the decoupling between hardware and software
 can have a positive effect on new emerging companies, considering the lower costs\cite{watkins2007transitioning}. Software virtualization makes it easier to develop the
 software, without buying expensive physical development kits. The software is being virtualized, tested and can be much later evaluated on real hardware, speeding up
 the development process and time to market.
 
 \section{Distributed Integrated Modular Avionics}\label{section:distributed_integrated_modular_avionics}
-\glsfirst{dima}
+While \gls{ima} introduced a central architecture via consolidating computing resources into one central flight cabinet
+\gls{dima} takes a different approach. \gls{ima} has shown that it is able to successfully reduce the number of components
+in the plane with increasing number of hosted functions, because of its shared hosting infrastructure\cite{fuchsen2009preparing}.
+Although this had positive effects on weight and cost management, there is room to improve in form of cable management.
+Due to the centralized architecture it is necessary to connect every sensor and effector in the plane with the central flight cabinet
+in the fuselage\cite{mccabe2009avionics}. This possible increase of cable length can be prevented via using ideas from the federated avionics and the \gls{ima}.
+\gls{dima} suggests a distribution of processing units, while taking into account the advantages of a central flight cabinet.
+Instead of one central flight cabinet it is possible to redistribute the avionics functions over multiple flight cabinets distributed
+in the plane's fuselage. This way it is possible to successfully exploit the advantages of the integrated architecture, while achieving
+further improvements in the cable management\cite{li2012avionics}. Cable management is not the only possible adjustment for improvement.
+The commercial cloud computing industry experienced a huge success over the last couple of years and these achievements can be used
+for creating synergies between these two areas and applying cloud computing ideas in \gls{dima}.
 
 \section{Workload Partitioning Strategies}\label{section:workload_partitioning_strategies}
 \nocite{*}
