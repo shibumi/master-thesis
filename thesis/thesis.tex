@@ -157,8 +157,8 @@ step in the evolution of flight system architectures and how the disadvantages o
 
 \section{Integrated Modular Avionics}\label{section:integrated_modular_avionics}
 \glsfirst{ima} is the direct successor of the federated avionics architecture. The idea behind \gls{ima}
-is to consolidate the distributed hardware in flight cabinets. Flight cabinets are very similar
-to racks in a datacenter. They can host multiple processing units or server blades, each comes with its own hardware stack
+is to consolidate the distributed hardware in one central flight cabinet. A Flight cabinet is very similar
+to a rack in a datacenter. They can host multiple processing units, each comes with its own hardware stack
 consisting of a \gls{cpu}, \gls{ram}, disk space and connectors for input and output\cite{prisaznuk1992integrated}. These servers are then plugged-in 
 into the flight cabinet. Each server can host more than one avionic function and each function is allocated on partitions.
 Partitions can be created on different ways and has been standardized in \gls{arinc653}\cite{vanderleest2010arinc}. The most common approach
@@ -169,10 +169,10 @@ Effectors and sensors communicate with the flight cabinet over \gls{arinc629}\ci
 Sensors or effectors that are incompatible with \gls{arinc629} may communicate over remote data concentrators. Remote data concentrators are gathering data from sensors
 or sending data to effectors over traditional \gls{io} connections. The gathered data or the received actions are communicated via \gls{arinc629} or \gls{arinc429}. Therefore,
 remote data concentrators act as bridges between such devices and the data bus.
-Using central flight cabinets cannot replace all \glspl{lru} in the plane\cite{watkins2007transitioning}. These \glspl{lru} needs to be either integrated into the flight cabinets
+Using a central flight cabinet cannot replace all \glspl{lru} in the plane\cite{watkins2007transitioning}. These \glspl{lru} needs to be either integrated into the flight cabinet
 or connected to the global data bus, for example via remote data concentrators. \autoref{fig:ima} depicts a simplified view on integrated modular avionics architecture in a plane.
-The number of \glspl{lru} has been reduced and flight cabinets has been introduced. Remote data concentrators are working as bridges between sensors and effectors incompatible
-with the data bus standard and the hosted functions in the flight cabinets. \autoref{fig:ima_components} shows the modules inside of such a flight cabinet. The flight cabinet
+The number of \glspl{lru} has been reduced and one central flight cabinet has been introduced. Remote data concentrators are working as bridges between sensors and effectors incompatible
+with the data bus standard and the hosted functions in the flight cabinet. \autoref{fig:ima_components} shows the modules inside of such a flight cabinet. The flight cabinet
 possesses multiple processing units. Each processing unit is comparable to a dedicated computer with its own hardware and operating system. These processing units
 are being connected via a network layer and each processing unit hosts one or more hosted functions. Hosted functions are isolated from each other and have
 a fixed predetermined set of resources and execution time.
@@ -206,9 +206,8 @@ can have a positive effect on new emerging companies, considering the lower cost
 software, without buying expensive physical development kits. The software is being virtualized, tested and can be much later evaluated on real hardware, speeding up
 the development process and time to market.
 
-
-
 \section{Distributed Integrated Modular Avionics}\label{section:distributed_integrated_modular_avionics}
+\glsfirst{dima}
 
 \section{Workload Partitioning Strategies}\label{section:workload_partitioning_strategies}
 \nocite{*}
