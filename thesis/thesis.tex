@@ -20,6 +20,7 @@
 \usepackage{eurosym}
 \usepackage{tabu}
 \usepackage{caption}
+\usepackage{csquotes}
 \lstset{%
     frame=tb,
     tabsize=4,
@@ -212,13 +213,47 @@ While \gls{ima} introduced a central architecture via consolidating computing re
 in the plane with increasing number of hosted functions, because of its shared hosting infrastructure\cite{fuchsen2009preparing}.
 Although this had positive effects on weight and cost management, there is room to improve in form of cable management.
 Due to the centralized architecture it is necessary to connect every sensor and effector in the plane with the central flight cabinet
-in the fuselage\cite{mccabe2009avionics}. This possible increase of cable length can be prevented via using ideas from the federated avionics and the \gls{ima}.
+in the fuselage\cite{mccabe2009avionics}. This possible increase of cable length can be prevented via using ideas from the federated avionics and \gls{ima}.
 \gls{dima} suggests a distribution of processing units, while taking into account the advantages of a central flight cabinet.
 Instead of one central flight cabinet it is possible to redistribute the avionics functions over multiple flight cabinets distributed
-in the plane's fuselage. This way it is possible to successfully exploit the advantages of the integrated architecture, while achieving
+in the plane's fuselage (see also \autoref{fig:dima}). This way it is possible to successfully exploit the advantages of the integrated architecture, while achieving
 further improvements in the cable management\cite{li2012avionics}. Cable management is not the only possible adjustment for improvement.
 The commercial cloud computing industry experienced a huge success over the last couple of years and these achievements can be used
-for creating synergies between these two areas and applying cloud computing ideas in \gls{dima}.
+for creating synergies between these two areas and applying cloud computing ideas in \gls{dima}. According to the \gls{nist} cloud computing is defined as:
+\begin{displayquote}
+\enquote{Cloud computing is a model for enabling ubiquitous, convenient, on-demand network access to a shared
+pool of configurable computing resources (e.g., networks, servers, storage, applications, and services) that
+can be rapidly provisioned and released with minimal management effort or service provider interaction.}\cite{mell2011sp}
+\end{displayquote}
+Although not all aspects of cloud computing are applicable on aviation, some of these aspects are.
+One of these aspects is the separation into different service layers:
+\begin{itemize}
+    \item \gls{saas}
+    \item \gls{paas}
+    \item \gls{iaas}
+\end{itemize}
+\gls{saas} is handling all applications. \gls{paas} is responsible for the platform, where these applications
+are running on (for example a hypervisor or services like webserver or databases). \gls{iaas} is the underlying
+infrastructure (server, storages, networking). These three layers can be mirrored on the aviation world as follows:
+\begin{itemize}
+    \item \gls{saas}: Hosted functions
+    \item \gls{paas}: The virtualized processing units or separation kernels
+    \item \gls{iaas}: flight cabinets, remote data concentrators, the plane's data bus
+\end{itemize}
+Via separating each of these layers the aviation industry gains stronger standardization, more reliability and more effective
+development workflows. Instead of selling one big monolithic system, separating makes it possible to develop products
+for specific layers and interconnect them with the other layer via standards. These standards can be, as shown in \autoref{section:integrated_modular_avionics},
+drivers for competition and exchangeability. Another aspect of cloud computing is the free and configurable allocation of applications\cite{li2012avionics}.
+Dedicated storage, processor or sensor clusters would allow on-demand access from applications. Nevertheless it is a challenge to make this access reliable
+and safe. Furthermore using standardized software may allow
+interconnection between the plane and ground units (for example: real-time weather data transmitted from the ground to the plane).
+This is partly comparable to the tactical data link of military units that get real-time radar data on their \gls{hsd}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/dima.pdf}
+    \caption{Visualization of distributed flight cabinets}\label{fig:dima}
+\end{figure}
 
 \section{Workload Partitioning Strategies}\label{section:workload_partitioning_strategies}
 \nocite{*}
