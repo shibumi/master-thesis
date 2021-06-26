@@ -256,8 +256,9 @@ This is partly comparable to the tactical data link of military units that get r
 \end{figure}
 
 \section{Workload Partitioning Strategies}\label{section:workload_partitioning_strategies}
-Workload partitioning is a hot topic in aviation, because differently to cloud computing there are in the worst case lifes at risk and in the best
-case the entertainment system does not work properly. These different risks are known as \gls{dal} or \gls{idal} and have been defined
+Planes are composed of complex distributed systems with different tasks, requirements and environmental influences.
+Every system has its own set of risks and possible impacts.
+These different risks are known as \gls{dal} or \gls{idal} and have been defined
 in the \gls{arp4754} as follows\cite{arp4754a2010guidelines}:
 \begin{description}
     \item[A] Catastrophic system failures
@@ -266,6 +267,49 @@ in the \gls{arp4754} as follows\cite{arp4754a2010guidelines}:
     \item[D] Minor system failures
     \item[E] No safety effect    
 \end{description}
+
+Due to these different risk levels it becomes important to isolate systems from each other. A system
+with a low risk level should never have direct nor indirect impact on another system. In conclusion
+the following measures are necessary to satisfy the safety and security requirements in planes:
+
+\begin{itemize}
+    \item Reserved \gls{cpu} time
+    \item Reserved memory
+    \item Reserved disk space
+    \item \gls{qos}
+    \item Network isolation
+    \item Process isolation
+    \item Privilege dropping
+\end{itemize}
+
+Reserved \gls{cpu} time means that every task has a strict time partition to work with.
+Normally, cpu time is being shared on single processor systems. The operating systems simulates
+parallelism via fast context switches. Multiple tasks are being executed consecutively switching
+between them. This creates the impression that the system behaves parallel, but in reality it does not.
+On multi processor systems real parallelism is possible. Reserved memory refers to a fixed memory
+partition in the \gls{ram}. Reserved disk space refers to guaranteed space on a hard disk for storing
+persistent data.
+Many of the above mentioned measures reveal other measures as direct dependencies. For example,
+it is not possible to do proper \gls{qos} without an observable system that gets properly monitored.
+Another example is the importance of security. On the first view security might be untangled of safety,
+but in reality safety and security have a direct effect on each other. If the system is insecure it cannot
+be safe and reliable, because every possible security incident could undermine all reliability promises.
+The same applies to safety. An unsafe and unstable system cannot be considered secure, because these
+weak points in the reliability might weaken the security. Just imagine a system that controls
+permissions or security related functions. The system itself may be secure, but if it is unreliable 
+it may has a direct effect on the security of other systems that depend on this particular system.
+Additionally, planes have further constraints and requirements on software. One of these requirements
+is a guarantee on response. Certain software systems in planes must respond before a given deadline.
+This is called real-time communication. Real-time communication breaks down into the following types\cite{worn2006echtzeitsysteme}:
+
+\begin{description}
+    \item[Hard] The system has to satisfy all constraints. Responses are always on time. If a response would come too late it would inflict damage.
+    \item[Firm] Executed tasks are worthless when their response does not satisfy the time constraint. No damage happens.
+    \item[Soft] There are time constraints for requests and responses, but a tolerance exist. Delays are acceptable (as long as they fit in a specific time frame).
+\end{description}
+
+With all of these requirements it is obvious that there need to be technical implementations to satisfy all constraints.
+
 \section{Summary}\label{section:Summary}
 % Here I want to list all challenges for my thesis
 \nocite{*}
