@@ -288,7 +288,13 @@ parallelism via fast context switches. Multiple tasks are being executed consecu
 between them. This creates the impression that the system behaves parallel, but in reality it does not.
 On multi processor systems real parallelism is possible. Reserved memory refers to a fixed memory
 partition in the \gls{ram}. Reserved disk space refers to guaranteed space on a hard disk for storing
-persistent data.
+persistent data. Network isolation and Process isolatio ensures a noisefree and secure runtime environment.
+Processes should not be disturbed by other processes either on process or network level. Furthermore,
+each process has to drop privileges. Dropping privileges increases the safety and security of a service,
+because it is less likely to interfere with other processes if the process has no privileges to do so.
+\gls{qos} gives certain processes wit higher importance or risk level a higher priority. For example,
+a system that controls the radar should have a higher priority than a system that just controls
+the ambient lights in the passenger cabin.
 Many of the above mentioned measures reveal other measures as direct dependencies. For example,
 it is not possible to do proper \gls{qos} without an observable system that gets properly monitored.
 Another example is the importance of security. On the first view security might be untangled of safety,
@@ -309,6 +315,18 @@ This is called real-time communication. Real-time communication breaks down into
 \end{description}
 
 With all of these requirements it is obvious that there need to be technical implementations to satisfy all constraints.
+The real-time constraints can be satisified via implementing real-time capabilities on operating system or kernel level.
+Prominent examples are VxWorks' real-time operating system\cite{vxworks}, FreeRTOS\cite{freertos} or the real-time patches for the linux kernel\cite{realtimelinux}.
+All other requirements are being solved either via virtualization or via containerization. There are two types of virtualization: Full virtualization and paravirtualization.
+While full virtualization creates an almost full virtualized hardware including virtualized memory or \gls{io} devices, the paravirtualization does only virtualize
+the software layer. The hardware stack will not be virtualized. Although this approach increases performance it is considered as less secure. With virtualization
+it is possible to successfully isolate processes from each other and provide a dedicated workload partition for a specific software with its own \gls{ram}, \gls{cpu}
+or security requirements. The keye element in this approach is the hypervisor. The hypervisor is the abstraction layer between the hardware
+and the software and their virtualized counterpart. Type 1 hypervisors run directly on the hardware, while type 2 hypervisors are running
+on a dedicated host OS. Both hypervisors can usually virtualize a finite number of guests. Guests can be either applications or whole operating systems.
+Many hardware provide direct support for virtualization, such as special instruction sets for \glspl{cpu}.
+The containerization uses operating system or kernel level features to isolate processes or resources. In the Linux kernel this usually works via
+making use of namespaces, kernel capabilities, control groups and union file systems.
 
 \section{Summary}\label{section:Summary}
 % Here I want to list all challenges for my thesis
