@@ -321,8 +321,8 @@ All other requirements are being solved either via virtualization or via contain
 While full virtualization creates an almost full virtualized hardware including virtualized memory or \gls{io} devices, the paravirtualization does only virtualize
 the software layer. The hardware stack will not be virtualized. Although this approach increases performance it is considered as less secure. With virtualization
 it is possible to successfully isolate processes from each other and provide a dedicated workload partition for a specific software with its own \gls{ram}, \gls{cpu}
-or security requirements. The keye element in this approach is the hypervisor. The hypervisor is the abstraction layer between the hardware
-and the software and their virtualized counterpart. Type 1 hypervisors run directly on the hardware, while type 2 hypervisors are running
+The key element in this approach is the hypervisor. The hypervisor is the abstraction layer between the hardware, the software and their virtualized counterpart. 
+Type 1 hypervisors run directly on the hardware, while type 2 hypervisors are running
 on a dedicated host OS. Both hypervisors can usually virtualize a finite number of guests. Guests can be either applications or whole operating systems.
 Many hardware provide direct support for virtualization, such as special instruction sets for \glspl{cpu}.
 The containerization uses operating system or kernel level features to isolate processes or resources. In the Linux kernel this usually works via
