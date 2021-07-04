@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
+        with:
+          lfs: true
       - name: Compile LaTeX document
         uses: dante-ev/latex-action@latest
         with:
