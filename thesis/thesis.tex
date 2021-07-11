@@ -326,9 +326,19 @@ Type 1 hypervisors run directly on the hardware, while type 2 hypervisors are ru
 on a dedicated host OS. Both hypervisors can usually virtualize a finite number of guests. Guests can be either applications or whole operating systems.
 Many hardware provide direct support for virtualization, such as special instruction sets for \glspl{cpu}.
 The containerization uses operating system or kernel level features to isolate processes or resources. In the Linux kernel this usually works via
-making use of namespaces, kernel capabilities, control groups and union file systems.
+making use of namespaces, kernel capabilities, control groups and union file systems. Linux namespaces have been heavily influenced by namespaces in Plan 9 (an alternative
+operating system by Bell Labs) and zones in Solaris. Contrary to traditional virtualization namespaces do not need a hypervisor layer, instead the kernel offers
+a single system call called \emph{setns()}\cite{mannamespaces}. The Linux namespace \gls{api} consists of six dedicated namespaces, each responsible for a different isolation environment\cite{namespacelist}:
+\begin{description}
+    \item[mnt] responsible for mount points and filesystems
+    \item[pid] responsible for processes
+    \item[net] responsible for the network stack
+    \item[ipc] responsible for \gls{ipc}
+    \item[uts] responsible for \gls{uts}
+    \item[user] responsible for \glspl{uid}      
+\end{description}
 
-\section{Summary}\label{section:Summary}
+\section{Challenges}\label{section:Challenges}
 % Here I want to list all challenges for my thesis
 \nocite{*}
 \printbibliography{}
