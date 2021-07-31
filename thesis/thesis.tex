@@ -347,6 +347,15 @@ different layers to a full docker container image. The second namespace \emph{pi
 with the same \glspl{pid} on the host system. Running multiple processes with the same \gls{pid} on one system fulfills different purposes.
 On one hand this provides reliability across different hosts. Via this approach it is possible to run a process with the same \gls{pid} in different
 environments on different physical hosts. On the other hand it provides isolation. The process can only see other processes contained in the same namespace\cite{lwnnamespace}.
+The \emph{net} namespace is responsible for everything network related. It provides the isolated environment with \gls{ip} addresses, ports, routing tables
+and virtual network devices. \emph{net} is mostly being used for isolating network connections from each other. For example a namespace \emph{A} could provide
+its own ports and internal IP addresses, while a namespace \emph{B} could provide the same port. The ports can be forwarded to the host via port-forwarding.
+The \emph{ipc} namespace handles everything \glsfirst{ipc} related (message queues, Linux signals like \emph{sigkill} for killing processes etc).
+For dealing with different hostnames in different namespaces the \emph{uts} namespace is being used. The last three namespaces implemented by Linux
+are the \emph{user}, \emph{cgroup} and \emph{time} namespaces. \emph{user} is responsible for \glsfirstplural{uid} and \glsfirstplural{gid}. With
+the namespace \emph{user} it is possible to different users or groups with the same \glsplural{uid} or \glsplural{gid} in different environment.
+For example, having the \emph{root} user (the administrator account on Linux systems) in different isolated environments. The user \emph{root}
+is identified by the \gls{uid} 0 and the \gls{gid} 0.
 
 \section{Challenges}\label{section:Challenges}
 % Here I want to list all challenges for my thesis
