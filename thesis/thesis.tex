@@ -320,23 +320,33 @@ Prominent examples are VxWorks' real-time operating system\cite{vxworks}, FreeRT
 All other requirements are being solved either via virtualization or via containerization. There are two types of virtualization: Full virtualization and paravirtualization.
 While full virtualization creates an almost full virtualized hardware including virtualized memory or \gls{io} devices, the paravirtualization does only virtualize
 the software layer. The hardware stack will not be virtualized. Although this approach increases performance it is considered as less secure. With virtualization
-it is possible to successfully isolate processes from each other and provide a dedicated workload partition for a specific software with its own \gls{ram}, \gls{cpu}
+it is possible to successfully isolate processes from each other and provide a dedicated workload partition for a specific software with its own \gls{ram} and \gls{cpu}.
 The key element in this approach is the hypervisor. The hypervisor is the abstraction layer between the hardware, the software and their virtualized counterpart. 
 Type 1 hypervisors run directly on the hardware, while type 2 hypervisors are running
-on a dedicated host OS. Both hypervisors can usually virtualize a finite number of guests. Guests can be either applications or whole operating systems.
+on a dedicated host OS. Both hypervisors can usually virtualize a finite number of guests (finite, because the hardware resources are finite). Guests can be either applications or whole operating systems.
 Many hardware provide direct support for virtualization, such as special instruction sets for \glspl{cpu}.
 The containerization uses operating system or kernel level features to isolate processes or resources. In the Linux kernel this usually works via
 making use of namespaces, kernel capabilities, control groups and union file systems. Linux namespaces have been heavily influenced by namespaces in Plan 9 (an alternative
-operating system by Bell Labs) and zones in Solaris. Contrary to traditional virtualization namespaces do not need a hypervisor layer, instead the kernel offers
+operating system by Bell Labs) and zones in Solaris. Contrary to traditional virtualization, namespaces do not need a hypervisor layer, instead the kernel offers
 a single system call called \emph{setns()}\cite{mannamespaces}. The Linux namespace \gls{api} consists of six dedicated namespaces, each responsible for a different isolation environment\cite{namespacelist}:
 \begin{description}
-    \item[mnt] responsible for mount points and filesystems
+    \item[mnt] responsible for filesystem mount points
     \item[pid] responsible for processes
     \item[net] responsible for the network stack
     \item[ipc] responsible for \gls{ipc}
     \item[uts] responsible for \gls{uts}
-    \item[user] responsible for \glspl{uid}      
+    \item[user] responsible for \glspl{uid}
+    \item[cgroup] responsible for control groups (cgroups)
+    \item[time] responsible for time  
 \end{description}
+The first namespace \emph{mnt} specifies the filesystem hierarchy for the isolated process or a group of processes. With this namespace it is possible
+to mount only a specific directory structure into the isolated environment. This ensures that a process from environment \emph{A} cannot
+access files on the host system or in another environment. The \emph{mnt} namespace has become especially useful in combination with union file systems.
+Union file systems are layered filesystems and allow to mount multiple directory structures over each other. Docker uses this technology for combining
+different layers to a full docker container image. The second namespace \emph{pid} gives the system the opportunity to run multiple processes 
+with the same \glspl{pid} on the host system. Running multiple processes with the same \gls{pid} on one system fulfills different purposes.
+On one hand this provides reliability across different hosts. Via this approach it is possible to run a process with the same \gls{pid} in different
+environments on different physical hosts. On the other hand it provides isolation. The process can only see other processes contained in the same namespace\cite{lwnnamespace}.
 
 \section{Challenges}\label{section:Challenges}
 % Here I want to list all challenges for my thesis
