@@ -336,7 +336,7 @@ a single system call called \emph{setns()}\cite{mannamespaces}. The Linux namesp
     \item[ipc] responsible for \gls{ipc}
     \item[uts] responsible for \gls{uts}
     \item[user] responsible for \glspl{uid}
-    \item[cgroup] responsible for control groups (cgroups)
+    \item[cgroup] responsible for \glspl{cgroup}
     \item[time] responsible for time  
 \end{description}
 The first namespace \emph{mnt} specifies the filesystem hierarchy for the isolated process or a group of processes. With this namespace it is possible
@@ -355,7 +355,13 @@ For dealing with different hostnames in different namespaces the \emph{uts} name
 are the \emph{user}, \emph{cgroup} and \emph{time} namespaces. \emph{user} is responsible for \glsfirstplural{uid} and \glsfirstplural{gid}. With
 the namespace \emph{user} it is possible to different users or groups with the same \glsplural{uid} or \glsplural{gid} in different environment.
 For example, having the \emph{root} user (the administrator account on Linux systems) in different isolated environments. The user \emph{root}
-is identified by the \gls{uid} 0 and the \gls{gid} 0.
+is identified by the \gls{uid} 0 and the \gls{gid} 0. Different times in isolated environments are provided by the \emph{time} namespace.
+The last namespace, the \emph{cgroup} namespace, is responsible for the \glsfirstplural{cgroup}. A \gls{cgroup} enables the system to limit
+and monitor resources inside of a namespace via providing a pseudo-filesystem called cgroupfs\cite{mancgroups}. Each \gls{cgroup} consists
+of one or more processes and each process is being modified by a subsystem (also known as resource controller). Subsystems work as modifiers
+for these processes. Via these modifiers it is possible to set specific limits or monitor the processes. For example, limiting the available
+\gls{cpu} time or memory for a process, increasing the priority for network traffic, limiting access to \gls{io} devices or
+monitoring events created by a process\cite{mancgroups}.
 
 \section{Challenges}\label{section:Challenges}
 % Here I want to list all challenges for my thesis
