@@ -325,8 +325,8 @@ The key element in this approach is the hypervisor. The hypervisor is the abstra
 Type 1 hypervisors run directly on the hardware, while type 2 hypervisors are running
 on a dedicated host OS. Both hypervisors can usually virtualize a finite number of guests (finite, because the hardware resources are finite). Guests can be either applications or whole operating systems.
 Many hardware provide direct support for virtualization, such as special instruction sets for \glspl{cpu}.
-The containerization uses operating system or kernel level features to isolate processes or resources. In the Linux kernel this usually works via
-making use of namespaces, kernel capabilities, control groups and union file systems. Linux namespaces have been heavily influenced by namespaces in Plan 9 (an alternative
+Containerization uses operating system or kernel level features to isolate processes or resources. In the Linux kernel this usually works via
+making use of namespaces, kernel capabilities, control groups, union file systems and additional kernel features such like the \gls{ebpf}. Linux namespaces have been heavily influenced by namespaces in Plan 9 (an alternative
 operating system by Bell Labs) and zones in Solaris. Contrary to traditional virtualization, namespaces do not need a hypervisor layer, instead the kernel offers
 a single system call called \emph{setns()}\cite{mannamespaces}. The Linux namespace \gls{api} consists of six dedicated namespaces, each responsible for a different isolation environment\cite{namespacelist}:
 \begin{description}
@@ -361,7 +361,12 @@ and monitor resources inside of a namespace via providing a pseudo-filesystem ca
 of one or more processes and each process is being modified by a subsystem (also known as resource controller). Subsystems work as modifiers
 for these processes. Via these modifiers it is possible to set specific limits or monitor the processes. For example, limiting the available
 \gls{cpu} time or memory for a process, increasing the priority for network traffic, limiting access to \gls{io} devices or
-monitoring events created by a process\cite{mancgroups}.
+monitoring events created by a process\cite{mancgroups}. The last two missing building block for secure containers are kernel capabilities and the \glsfirst{ebpf}.
+Kernel capabilities provide a more granular access to kernel features such like mounting or creating ports\cite{dockersecurity}.
+Common kernel capabilities are \emph{CAP\_CHOWN} (changing the owner and group of a file), \emph{CAP\_NET\_BIND\_SERVICE} (allow the binding of ports under 1024), 
+\emph{CAP\_SYS\_ADMIN} (allow system administrator access), \emph{CAP\_NET\_ADMIN} (allow network administrator access) (a complete list can be found
+in the corresponding man page for kernel capabilities\cite{mancapabilities}).
+
 
 \section{Challenges}\label{section:Challenges}
 % Here I want to list all challenges for my thesis
