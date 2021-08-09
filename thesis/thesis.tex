@@ -364,12 +364,13 @@ for these processes. Via these modifiers it is possible to set specific limits o
 monitoring events created by a process\cite{mancgroups}. The last two missing building block for secure containers are kernel capabilities and the \glsfirst{ebpf}.
 Kernel capabilities provide a more granular access to kernel features such like mounting or creating ports\cite{dockersecurity}.
 Common kernel capabilities are \emph{CAP\_CHOWN} (changing the owner and group of a file), \emph{CAP\_NET\_BIND\_SERVICE} (allow the binding of ports under 1024), 
-\emph{CAP\_SYS\_ADMIN} (allow system administrator access), \emph{CAP\_NET\_ADMIN} (allow network administrator access) (a complete list can be found
+\emph{CAP\_SYS\_ADMIN} (allow system administrator access), \emph{CAP\_NET\_ADMIN} (allow network administrator access, a complete list can be found
 in the corresponding man page for kernel capabilities\cite{mancapabilities}).
 
-
 \section{Challenges}\label{section:Challenges}
-% Here I want to list all challenges for my thesis
+Prior, this thesis has explored past, present and future avionic system architectures. On the next pages it is going to examine
+challenges in these avionic system architecture designs and possible enhancements in the avionic domain in general.
+
 \nocite{*}
 \printbibliography{}
 \lstlistoflistings{}
