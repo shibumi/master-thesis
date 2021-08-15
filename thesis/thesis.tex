@@ -367,9 +367,23 @@ Common kernel capabilities are \emph{CAP\_CHOWN} (changing the owner and group o
 \emph{CAP\_SYS\_ADMIN} (allow system administrator access), \emph{CAP\_NET\_ADMIN} (allow network administrator access, a complete list can be found
 in the corresponding man page for kernel capabilities\cite{mancapabilities}).
 
-\section{Challenges}\label{section:Challenges}
+\section{Challenges and Opportunities}\label{section:Challenges_And_Opportunities}
 Prior, this thesis has explored past, present and future avionic system architectures. On the next pages it is going to examine
-challenges in these avionic system architecture designs and possible enhancements in the avionic domain in general.
+challenges in these avionic system architecture designs and possible enhancements in the avionic domain in general. This document is explicitly ignoring the certification
+process of software. It is known that a certification process in the avionic domain can be slowly and very costly, due to its
+high risk to passengers and flight personnel. Enhancing this certification process via altering the certification itself, while matching the right balance between safety
+and development speed or costs, is explicitly not topic of this research. Instead, this document tries to focus on few main questions.
+The first identified challenge is the increase of development speed in the avionic domain. Pushing innovations and new technologies fast are a major
+success factor. Maintaining a hardware and software stack for a traditional avionic system architecture, like the federated architecture, is a
+huge cost and time disadvantage. The developer cannot use the standard development tools and needs to adapt to the new environment. Moreover,
+buying the necessary equipment and constantly adjusting the software to this equipment are toilsome and complicated. Every hour of additional
+work is a cost factor that leads to higher unit prices, smaller profit margins and less time for more features. Costs directly lead to the next
+challenge: Decreasing development costs and increasing feature output. Considering the tight entanglement of soft- and hardware in federated systems
+these stacks become very cost intensive and thus increasing the cost of development. The feature output is also limited to the required hard- and software,
+hence limiting possible performance or functionality gains. Performance is another challenge. As a result of heavy use of virtual machines the performance
+gains are not as high as they could be. The hard- and software limitations make the system less extensible and less adjustable. Another challenge is the
+proprietary avionic system development environment. Proprietary standards, hardware- and software have devastating effects on innovation, safety, security,
+costs and technological development.
 
 \nocite{*}
 \printbibliography{}
