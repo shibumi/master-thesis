@@ -371,7 +371,7 @@ in the corresponding man page for kernel capabilities\cite{mancapabilities}).
 Prior, this thesis has explored past, present and future avionic system architectures. On the next pages it is going to examine
 challenges in these avionic system architecture designs and possible enhancements in the avionic domain in general. This document is explicitly ignoring the certification
 process of software. It is known that a certification process in the avionic domain can be slowly and very costly, due to its
-high risk to passengers and flight personnel. Enhancing this certification process via altering the certification itself, while matching the right balance between safety
+high risk to passengers, flight personnel and civilians on the ground. Enhancing this certification process via altering the certification itself, while matching the right balance between safety
 and development speed or costs, is explicitly not topic of this research. Instead, this document tries to focus on few main questions.
 The first identified challenge is the increase of development speed in the avionic domain. Pushing innovations and new technologies fast are a major
 success factor. Maintaining a hardware and software stack for a traditional avionic system architecture, like the federated architecture, is a
@@ -379,17 +379,28 @@ huge cost and time disadvantage. The developer cannot use the standard developme
 buying the necessary equipment and constantly adjusting the software to this equipment are toilsome and complicated. Every hour of additional
 work is a cost factor that leads to higher unit prices, smaller profit margins and less time for more features. Costs directly lead to the next
 challenge: Decreasing development costs and increasing feature output. Considering the tight entanglement of soft- and hardware in federated systems
-these stacks become very cost intensive. The feature output is also limited to the required hard- and software,
+these stacks become very cost intensive. Also, the feature output is limited to the required hard- and software,
 hence limiting possible performance or functionality gains. Performance is another challenge. As a result of heavy use of virtual machines the performance
 gains are not as high as they could be. The hard- and software limitations make the system less extensible and less adjustable. Another challenge is the
 proprietary avionic system development environment. Proprietary standards, hardware- and software have devastating effects on innovation, safety, security,
 costs and technological development. Innovation is affected negatively, because of less communication between companies. Open architectures, software or hardware
-increase communication and share knowledge between all development entities. More involved parties mean more involved eyes on a certain project and more eyes mean it is more
-likely to find a bug in a safety or security related component.
+increase communication and share knowledge between all development entities. These shared knowledge and improved communication is known for increasing
+security of software\cite{hoepman2007increased}. Restricting access to the source code may help restricting the attacker's knowledge for executing attacks, but it is shown that
+``keeping the source code closed appears to be difficult''\cite{mercuri2003security}. Furthermore, patches for open source software are released twice as fast
+as for closed source software\cite{witten2001does}. The increased pace of patching the software underlines the increased development speed and its connected
+benefits.
 
+Many of the highlighted challenges are not new for the tech industry. The cloud industry has solved several of these challenges successfully.
 
 \chapter{Kubernetes}
 \section{Introduction}
+Containers are not a new concept. The idea behind them goes back to systems like Solaris, FreeBSD or Linux. FreeBSD has released their first container-alike
+isolation environment, called "jails", in 2000\cite{FreeBSD4Announcement}. Jails is heavily being influenced by the chroot system call on Unix systems.
+The chroot system call has been introduced with Version 7 Unix in 1979\cite{BYTE}. The concept has been there all the time so what was missing?
+Although containers were in use by system administrators the workflow was not developer friendly enough. Big companies like Google
+realized the potential of containers early and they started to heavily use them in their own infrastructure, but the overall success
+came with technologies like Docker or Kubernetes. 
+
 \section{Open Container Initiative}
 \section{Architecture}
 \section{Container Interfaces: CRI, CNI and CSI}
