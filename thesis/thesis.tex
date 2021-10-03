@@ -398,9 +398,17 @@ Containers are not a new concept. The idea behind them goes back to systems like
 isolation environment, called "jails", in 2000\cite{FreeBSD4Announcement}. Jails is heavily being influenced by the chroot system call on Unix systems.
 The chroot system call has been introduced with Version 7 Unix in 1979\cite{BYTE}. The concept has been there all the time so what was missing?
 Although containers were in use by system administrators the workflow was not developer friendly enough. Big companies like Google
-realized the potential of containers early and they started to heavily use them in their own infrastructure, but the overall success
-came with technologies like Docker or Kubernetes. 
-
+realized the potential of containers early and started to heavily use them in their own infrastructure, but the overall success
+came with open source technologies like Docker or Kubernetes. It turned out that opening up the development process of these technologies
+has been the perfect foundation for creating a community that spans over several companies and industry branches. This community is under
+supervision of the Linux Foundation, has been founded in 2015, and is called \glsfirst{cncf}\cite{CNCFFounding}.
+ 
+\section{Docker}
+Docker (released in 2013\cite{DockerRelease}) has revolutionized the way containers are being used.
+Before Docker the primary users of containers have been sysadmins, who used containerization to isolate environments from each other. With Docker
+this workflow has changed. Docker has introduced a unique file format for describing a container consisting of different layers. These layers
+are stacked on each other with union file systems for a final Docker image. This process has the advantage that each layer can be cached separately, leading
+to less disk usage and faster container build times.
 \section{Open Container Initiative}
 \section{Architecture}
 \section{Container Interfaces: CRI, CNI and CSI}
