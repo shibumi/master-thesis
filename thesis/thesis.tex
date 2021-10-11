@@ -401,7 +401,29 @@ Although containers were in use by system administrators the workflow was not de
 realized the potential of containers early and started to heavily use them in their own infrastructure, but the overall success
 came with open source technologies like Docker or Kubernetes. It turned out that opening up the development process of these technologies
 has been the perfect foundation for creating a community that spans over several companies and industry branches. This community is under
-supervision of the Linux Foundation, has been founded in 2015, and is called \glsfirst{cncf}\cite{CNCFFounding}.
+supervision of the Linux Foundation and is called \glsfirst{cncf}\cite{CNCFFounding}. The \gls{cncf} built an enormous ecosystem for
+running and orchestrating containers. \autoref{fig:landscape} visualizes the scale of the \gls{cncf} related projects\cite{CNCFLandscape}. Considering that
+that the \gls{cncf} was founded in 2015 this is clearly a huge success for the containerization of applications in different industry branches, especially
+for the cloud computing industry. Looking at the landscape it can be seen that the \gls{cncf} covers different areas and expands wide beyond containerization.
+Just to name a few different areas and their sub areas on the landscape:
+
+\begin{description}
+    \item[App Definition and Development] databases, streaming and messaging, application definition and image build, continuous integration and delivery
+    \item[Orchestration and Management] scheduling and orchestration, coordination and service discovery, remote procedure call, service proxy, api gateway, service mesh
+    \item[Runtime] cloud native storage, container runtime, cloud native network
+    \item[Provisioning] automation and configuration, container registry, security and compliance, key management
+    \item[Observability] monitoring, logging tracing, chaos engineering
+\end{description}
+
+While some of the above areas play only a minor role in the aviation industry some areas are usable or will play a bigger role in the future.
+Especially, areas like scheduling and orchestration or container runtime are from interest for the aviation industry, because
+these areas provide related functionality compared to current solutions in actual use within the aviation industry.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/landscape.png}
+    \caption{Cloud Native Computing Foundation Landscape}\label{fig:landscape}
+\end{figure}
  
 \section{Docker}
 Docker (released in 2013\cite{DockerRelease}) has revolutionized the way containers are being used.
