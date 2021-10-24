@@ -428,16 +428,95 @@ these areas provide related functionality compared to current solutions in actua
 \section{Docker}
 Docker (released in 2013\cite{DockerRelease}) has revolutionized the way containers are being used.
 Before Docker, the primary users of containers have been sysadmins, who used containerization to isolate environments from each other. With Docker
-this workflow has changed. Docker has introduced a unique file format for describing a container consisting of different layers. These layers
+this workflow has changed. Docker has introduced a unique file format, called Dockerfile, for describing a container consisting of different layers. These layers
 are stacked on each other, with the help of union file systems, for a final Docker image. This process has a few advantages. Each layer can be cached separately, leading
 to less disk usage and faster container build times. Layers do not need to be from the same author. In Docker it is very common to re-use common Docker images
 as a base layer and add additional payload to them via adding layers on top of the base layer. The base layer is often called the base image and the most popular
 base image is the \emph{scratch} image. \emph{Scratch} is just an empty Docker layer. All other base images use the \emph{scratch} image as start point for the build process.
 Base images can be whole Linux distributions like Debian, proprietary operating systems from the industry or just a directory structure. For example, Google provides
 a \emph{distroless} Docker image that just contains time zone data and the global certificate chain\cite{Distroless}. The \emph{distroless} image is mainly in use for shipping
-static binaries inside of Docker. This is common practice for languages like Rust or Go. Shipping just the binary leads to a much smaller attack surface. \emph{Distroless}
-images do not even have a shell, hence it is not possible for an attacker to gain shell access to such a container and missing additional executables make it impossible to
+static binaries inside of Docker. This is common practice for languages like Rust or Go. Shipping just the binary leads to a much smaller attack surface. Having no shell inside
+of the image makes it impossible for an attacker to gain shell access to such a container and missing additional executables make it difficult to
 exploit additional executables for building an attack chain (for example via using network utilities for opening a reverse shell into the container).
+\autoref{lst:dockerfile} shows an example multi-stage Dockerfile with different layers. Each line in the file is a separate layer in the final image
+and each \emph{FROM} statement defines a different stage in the docker image build process. In the first stage of the Dockerfile
+a small hello world program will be written in the programming language Go (often referred to as Golang) and compiled. In the second stage,
+the executable from the first stage will be copied to the new second stage, placing it into a \emph{distroless} image for reducing the possible
+attack surface and making the executable available for further distribution as docker image. The first stage starts with the statement
+\emph{FROM docker.io/golang:1.17 AS GO\_BUILD}, setting the base image to \emph{golang} with version 1.17 from the docker registry \emph{docker.io}
+and naming this stage \emph{GO\_BUILD}. A docker registry is a public or private repository for docker images. 
+The second statement \emph{WORKDIR /go/src/app} sets the working directory for the build process. It is comparable to moving to a folder
+in a Windows system or changing the directory in a Linux system via the command line command \emph{cd}. The next three statements starting
+with \emph{ENV} are setting environment variables. Environment variables are an operating system feature for setting variables outside
+of programs for configuration purposes. \emph{GOOS} sets the target operating system to Linux, \emph{GOARCH} sets the architecture to amd64
+and \emph{CGO\_ENABLED} disables the libc support for the Go build process. Disabling the libc support is equal to disabling linking
+to shared libraries, resulting to a static compiled binary that can be moved on different systems as long as the target operating system
+and architecture stays the same. With the next three \emph{RUN} statement it is possible to execute commands in the base image
+\emph{docker.io/golang:1.17} (this also means that our base image is actually based on Linux). The \emph{echo} command
+prints our Go hello world code and pipes it into a file called \emph{main.go}. Using \emph{go mod init app} initializes
+the Go build and dependency system with a name for the app. Running \emph{go build -o /out/app .} will build the \emph{main.go}
+file in the current directory and move the created executable \emph{app} to the directory \emph{/out/}. Using the next
+\emph{FROM gcr.io/distroless/base} statement a new stage will be build with a new base image for the final image holding the executable
+and reducing possible attack surface by utilizing Google's \emph{distroless} images. The \emph{COPY} statement will
+copy the built executable from the first stage into the new second stage and the \emph{ENTRYPOINT} statement will set
+the path of the application as entrypoint for the container startup. It is important to differ between images and containers.
+Containers are running instances of images. The entrypoint is the start point from each container and be compared to the main function
+of most C-alike programming languages or the init system of a modern operating system. \autoref{lst:dockerbuild} shows
+the output of building the docker image. Each step is equal to one layer of the final image and each layer has a unique
+SHA256 checksum over the binary content of the layer for ensuring integrity and reproducibility. This minor information
+has a unique impact on supply chain security, developer experience and costs, because with each layer cryptographically
+identified it is much more difficult to tamper with the build process, allowing secure access to cached layers
+and leading to faster development speed and lower costs. The final image can be runs as container via executing
+\emph{docker run} leading to the promised \emph{Hello World!} line. 
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={A multi stage Dockerfile with different layers},label={lst:dockerfile}]
+FROM docker.io/golang:1.17 AS GO_BUILD
+WORKDIR /go/src/app
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV CGO_ENABLED=0
+RUN echo "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"Hello world!\") }" > main.go
+RUN go mod init app
+RUN go build -o /out/app .
+
+FROM gcr.io/distroless/base
+COPY --from=GO_BUILD /out/app .
+ENTRYPOINT ["./app"]
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Output of a docker build run with shortened SHA256 checksums},label={lst:dockerbuild}]
+STEP 1: FROM docker.io/golang:1.17 AS GO_BUILD
+STEP 2: WORKDIR /go/src/app
+--> Using cache baa3b5061ca
+--> baa3b5061ca
+STEP 3: ENV GOOS=linux
+--> Using cache fe142d360ee
+--> fe142d360ee
+STEP 4: ENV GOARCH=amd64
+--> Using cache 49771a6a4a6
+--> 49771a6a4a6
+STEP 5: ENV CGO_ENABLED=0
+--> Using cache edf307d8374
+--> edf307d8374
+STEP 6: RUN echo "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"Hello world!\") }" > main.go
+--> Using cache ca435b8adf9
+--> ca435b8adf9
+STEP 7: RUN go mod init app
+--> Using cache 19b7a23f24d
+--> 19b7a23f24d
+STEP 8: RUN go build -o /out/app .
+--> Using cache baeee09e19f
+--> baeee09e19f
+STEP 9: FROM gcr.io/distroless/base
+STEP 10: COPY --from=GO_BUILD /out/app .
+--> Using cache 5ab01f9acf7
+--> 5ab01f9acf7
+STEP 11: ENTRYPOINT ["./app"]
+--> Using cache 288ac81c34b
+--> 288ac81c34b
+\end{lstlisting}
+\end{minipage}
 \section{Open Container Initiative}
 \section{Architecture}
 \section{Container Interfaces: CRI, CNI and CSI}
