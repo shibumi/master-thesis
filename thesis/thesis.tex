@@ -466,7 +466,7 @@ the output of building the docker image. Each step is equal to one layer of the 
 SHA256 checksum over the binary content of the layer for ensuring integrity and reproducibility. This minor information
 has a unique impact on supply chain security, developer experience and costs, because with each layer cryptographically
 identified it is much more difficult to tamper with the build process, allowing secure access to cached layers
-and leading to faster development speed and lower costs. The final image can be runs as container via executing
+and leading to faster development speed and lower costs. The final image can be run as container via executing
 \emph{docker run} leading to the promised \emph{Hello World!} line. 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={A multi stage Dockerfile with different layers},label={lst:dockerfile}]
@@ -518,6 +518,12 @@ STEP 11: ENTRYPOINT ["./app"]
 \end{lstlisting}
 \end{minipage}
 \section{Open Container Initiative}
+In June 2015 leading container projects, such like Docker and CoreOS (a minimal Linux distribution for running containers), launched the \gls{oci}
+under auspices of the Linux Foundation\cite{OCIabout}. The \gls{oci}'s purpose is the standardization of Docker's container image specification (image-spec) and container runtime (runtime-spec).
+Before the \gls{oci} there has been many different container image and runtime implementations such like systemd-nspawn and LCX (Linux Containers). The \gls{oci} tries to
+address this problem by proposing a standard for a user experience and \gls{api} specifications. This standardization process is very important for operating in different environments
+or domains. For example, \gls{oci} image specification allows to run an \gls{oci} compliant virtual machine via an \gls{oci} compliant container runtime.
+
 \section{Container Interfaces: CRI, CNI and CSI}
 \section{Kubernetes' Architecture}
 \section{Kubernetes' Application Programming Interface}
