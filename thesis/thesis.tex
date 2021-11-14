@@ -519,10 +519,18 @@ STEP 11: ENTRYPOINT ["./app"]
 \end{minipage}
 \section{Open Container Initiative}
 In June 2015 leading container projects, such like Docker and CoreOS (a minimal Linux distribution for running containers), launched the \gls{oci}
-under auspices of the Linux Foundation\cite{OCIabout}. The \gls{oci}'s purpose is the standardization of Docker's container image specification (image-spec) and container runtime (runtime-spec).
-Before the \gls{oci} there has been many different container image and runtime implementations such like systemd-nspawn and LCX (Linux Containers). The \gls{oci} tries to
-address this problem by proposing a standard for a user experience and \gls{api} specifications. This standardization process is very important for operating in different environments
-or domains. For example, \gls{oci} image specification allows to run an \gls{oci} compliant virtual machine via an \gls{oci} compliant container runtime.
+under auspices of the Linux Foundation\cite{OCIabout}. The \gls{oci}'s purpose is the standardization of Docker's container image specification (image-spec\cite{ImageSpec}), container runtime (runtime-spec\cite{RuntimeSpec})
+and content distribution (distribution-spec\cite{DistributionSpec}). These three specifications address everything from building a container image, distributing the image
+over a container registry, and running the container. Standardization enables interchangeability of all three implementations and increases possibilities for their production usage.
+In the follow this thesis will have a short glimpse on each of the specifications. A full writeup would break the constraints of this thesis. It is recommended to read
+the original specification, if more information is needed. The image specification has four essentials components:
+
+\begin{description}
+    \item[manifest] providing a set of layers and a configuration for a specific image runnable on a specific architecture and operating system
+    \item[image index] provides a set of manifests with different architectures and operating systems
+    \item[filesystem layers] provides information about merging different layers to one image
+    \item[configuration] provides the configuration of the image, provided by the Dockerfile (environment variables, entrypoints, etc)
+\end{description}
 
 \section{Container Interfaces: CRI, CNI and CSI}
 \section{Kubernetes' Architecture}
