@@ -522,15 +522,85 @@ In June 2015 leading container projects, such like Docker and CoreOS (a minimal 
 under auspices of the Linux Foundation\cite{OCIabout}. The \gls{oci}'s purpose is the standardization of Docker's container image specification (image-spec\cite{ImageSpec}), container runtime (runtime-spec\cite{RuntimeSpec})
 and content distribution (distribution-spec\cite{DistributionSpec}). These three specifications address everything from building a container image, distributing the image
 over a container registry, and running the container. Standardization enables interchangeability of all three implementations and increases possibilities for their production usage.
-In the follow this thesis will have a short glimpse on each of the specifications. A full writeup would break the constraints of this thesis. It is recommended to read
-the original specification, if more information is needed. The image specification has four essentials components:
+In the following, this thesis will have a short glimpse on each of the specifications. A full writeup would break the constraints of this thesis. It is recommended to read
+the original specification, if more information is needed. The image specification has five essential components:
 
 \begin{description}
-    \item[manifest] providing a set of layers and a configuration for a specific image runnable on a specific architecture and operating system
+    \item[manifest] provides a set of layers and a configuration for a specific image runnable on a specific architecture and operating system
     \item[image index] provides a set of manifests with different architectures and operating systems
+    \item[image layout] provides a file system layout (the contents of the image) 
     \item[filesystem layers] provides information about merging different layers to one image
     \item[configuration] provides the configuration of the image, provided by the Dockerfile (environment variables, entrypoints, etc)
 \end{description}
+
+\autoref{lst:imageManifest} depicts a very simplified example image manifest. The sha256 checksums have been shortened for saving space in this document.
+The manifest shows the schema version, a configuration, multiple layers and annotations. The configurations and layers have media types, a field for the
+size and a digest (a checksum) of the addressable content. Annotations provide further information for the image. The OCI manifest specification
+defines a few predefined annotations, but at last these are just customizable strings. Annotations allow additional metadata for images, thus
+providing information for various other use cases, like easier search in an OCI compatible registry or information about its maintainers.
+With the manifest it is possible to address the content via its offset and to provide integrity via digests. One or more image manifests can form
+an image index. An image index is a set of different image manifests for different operating systems and architectures. \autoref{imageIndex} illustrates
+such an image index with support for two platforms. The first addressed manifest links to a manifest for MacOS with M1 chipset. The second addressed manifest
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={An OCI image manifest with two layers, shortened sha256 checksums and two annotations},label={lst:imageManifest}]
+{
+    "schemaVersion": 2,
+    "config": {
+        "mediaType": "application/vnd.oci.image.config.v1+json",
+        "size": 8652,
+        "digest": "sha256:b5bb9d8014a0f..."
+    },
+    "layers": [
+        {
+            "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+            "size": 40270,
+            "digest": "sha256:c739918a22764..."
+        },
+        {
+            "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+            "size": 14743,
+            "digest": "sha256:9f767b0b078d2..."
+        }
+    ],
+    "annotations": {
+        "org.opencontainers.image.authors": "Christian Rebischke",
+        "org.opencontainers.image.title": "A very easy manifest example"
+    }
+}
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={An OCI image index with multiple manifests, shortened sha256 checksums and platform specifications},label={lst:imageIndex}]
+{
+    "schemaVersion": 2,
+    "manifests": [
+        {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "size": 9783,
+            "digest": "sha256:6650b51fab815ad7fc331f...",
+            "platform": {
+                "architecture": "arm64",
+                "os": "darwin"
+            }
+        },
+        {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "size": 9543,
+            "digest": "sha256:ed22e9fb1310cf6c2decab...",
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    ],
+    "annotations": {
+        "org.opencontainers.image.created": "2021-12-19T16:39:57-08:00",
+    }
+}
+\end{lstlisting}
+\end{minipage}
+
 
 \section{Container Interfaces: CRI, CNI and CSI}
 \section{Kubernetes' Architecture}
