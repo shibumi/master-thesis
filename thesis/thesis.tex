@@ -463,7 +463,7 @@ the path of the application as entrypoint for the container startup. It is impor
 Containers are running instances of images. The entrypoint is the start point from each container and be compared to the main function
 of most C-alike programming languages or the init system of a modern operating system. \autoref{lst:dockerbuild} shows
 the output of building the docker image. Each step is equal to one layer of the final image and each layer has a unique
-SHA256 checksum over the binary content of the layer for ensuring integrity and reproducibility. This minor information
+\gls{sha256} checksum over the binary content of the layer for ensuring integrity and reproducibility. This minor information
 has a unique impact on supply chain security, developer experience and costs, because with each layer cryptographically
 identified it is much more difficult to tamper with the build process, allowing secure access to cached layers
 and leading to faster development speed and lower costs. The final image can be run as container via executing
@@ -533,14 +533,25 @@ the original specification, if more information is needed. The image specificati
     \item[configuration] provides the configuration of the image, provided by the Dockerfile (environment variables, entrypoints, etc)
 \end{description}
 
-\autoref{lst:imageManifest} depicts a very simplified example image manifest. The sha256 checksums have been shortened for saving space in this document.
+\autoref{lst:imageManifest} depicts a very simplified example image manifest. The \gls{sha256} checksums have been shortened for saving space in this document.
 The manifest shows the schema version, a configuration, multiple layers and annotations. The configurations and layers have media types, a field for the
-size and a digest (a checksum) of the addressable content. Annotations provide further information for the image. The OCI manifest specification
+size and a digest (a checksum) of the addressable content. Annotations provide further information for the image. The \gls{oci} manifest specification
 defines a few predefined annotations, but at last these are just customizable strings. Annotations allow additional metadata for images, thus
-providing information for various other use cases, like easier search in an OCI compatible registry or information about its maintainers.
-With the manifest it is possible to address the content via its offset and to provide integrity via digests. One or more image manifests can form
-an image index. An image index is a set of different image manifests for different operating systems and architectures. \autoref{imageIndex} illustrates
+providing information for various other use cases, like easier search in an \gls{oci} compatible registry or information about its maintainers.
+With the manifest it is possible to address the content via its offset and to provide integrity via digests \cite{ImageManifestSpec}. One or more image manifests can form
+an image index. An image index is a set of different image manifests for different operating systems and architectures \cite{ImageIndexSpec}. \autoref{lst:imageIndex} illustrates
 such an image index with support for two platforms. The first addressed manifest links to a manifest for MacOS with M1 chipset. The second addressed manifest
+refers to a manifest for Linux with amd64 chipset. Furthermore, it is possible to add additional annotations to the image index definition. As mentioned earlier,
+an \gls{oci} image consists of different layers. These layers are defined in the image layout and the filesystem layers specifications. One or more compressed layers are applied
+on top of each other to create the entire root filesystem of the image\cite{ImageFSSpec}. The filesystem layers specification can handle 
+additions, modifications and removals of various file types, such like directories, sockets, symbolic links, block devices, or regular files\cite{ImageFSSpec}.
+All of these layers are described as an image layout. Each layer is stored in the image layout as \gls{blob} and addressable via its \gls{sha256} digest. An \gls{oci} image layout
+is comparable to a directory in a filesystem. A \gls{blob} directory stores all layers, an index.json file provides platform interoperability via establishing the relationship
+between each layer and their target platform \cite{ImageLayoutSpec}. \gls{oci} layout files work as marker and version identifier of the \gls{oci} layout. While the prior mentioned specifications
+define the structure of the \gls{oci} image, the configuration specifies the environments, entrypoints, volumes, working directory, commands that should be executed and other configuration parameters.
+The \emph{docker image inspect <docker image>} command allows to analyze a full OCI image configuration for a given image. \autoref{lst:imageConfiguration} shows the output of this command
+for the prior mentioned OCI image, built from \autoref{lst:dockerfile}. The output has been cut down to the most important parts. Clearly visible are the environment in form of environment
+variables, the command, the working directory, an entrypoint, the docker version, a build date and the root file system layers. If compared with \autoref{lst:dockerfile} the similarities are obvious. 
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={An OCI image manifest with two layers, shortened sha256 checksums and two annotations},label={lst:imageManifest}]
@@ -597,6 +608,51 @@ such an image index with support for two platforms. The first addressed manifest
     "annotations": {
         "org.opencontainers.image.created": "2021-12-19T16:39:57-08:00",
     }
+}
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={An OCI image configuration created via docker image inspect (shortened)},label={lst:imageConfiguration}]
+{
+    "RepoTags": [
+    "hello-world:latest"
+    ],
+    "Created": "2021-12-19T07:47:29.318765235Z",
+    "ContainerConfig": {
+    "Hostname": "motoko.shibumi.dev",
+    "User": "0",
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "AttachStderr": false,
+    "Tty": false,
+    "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
+    ],
+    "Cmd": [
+        "/bin/sh",
+        "-c",
+        "#(nop) ",
+        "ENTRYPOINT [\"./app\"]"
+    ],
+    "Image": "sha256:bc721b69a6af4bb...",
+    "WorkingDir": "/",
+    "Entrypoint": [
+        "./app"
+    ],
+    "DockerVersion": "20.10.12",
+    "Architecture": "amd64",
+    "Os": "linux",
+    "Size": 22013044,
+    "VirtualSize": 22013044,
+    "RootFS": {
+    "Type": "layers",
+    "Layers": [
+        "sha256:c0d270ab7e0db0...",
+        "sha256:e3d24823466584...",
+        "sha256:589f2bccf144b2..."
+    ]
+    },
 }
 \end{lstlisting}
 \end{minipage}
