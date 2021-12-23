@@ -549,9 +549,16 @@ All of these layers are described as an image layout. Each layer is stored in th
 is comparable to a directory in a filesystem. A \gls{blob} directory stores all layers, an index.json file provides platform interoperability via establishing the relationship
 between each layer and their target platform \cite{ImageLayoutSpec}. \gls{oci} layout files work as marker and version identifier of the \gls{oci} layout. While the prior mentioned specifications
 define the structure of the \gls{oci} image, the configuration specifies the environments, entrypoints, volumes, working directory, commands that should be executed and other configuration parameters.
-The \emph{docker image inspect <docker image>} command allows to analyze a full OCI image configuration for a given image. \autoref{lst:imageConfiguration} shows the output of this command
+The \emph{docker image inspect <docker image>} command prints a full OCI image configuration for a given image. \autoref{lst:imageConfiguration} shows the output of this command
 for the prior mentioned OCI image, built from \autoref{lst:dockerfile}. The output has been cut down to the most important parts. Clearly visible are the environment in form of environment
 variables, the command, the working directory, an entrypoint, the docker version, a build date and the root file system layers. If compared with \autoref{lst:dockerfile} the similarities are obvious. 
+This image configuration works as interface for the runtime specification. The \gls{cri} provides an interface for running \gls{oci} compatible images. Common implementations of the \gls{cri} are
+docker, containerd\cite{Containerd} or cri-o\cite{CRIO}. Containers are encoded as filesystem bundles. A filesystem bundle consists of the container configuration as specified in the \gls{oci} image specification
+and the container's root filesystem (referenced in the image configuration)\cite{FilesystemBundle}. These filesystem bundles are executed by the container runtime. The container runtime manages the state and the lifecycle
+of the container. Every container runtime implementation must fulfil the \gls{cri} specification's lifecycle operations and commands for basic runtime interaction (create, start, stop, kill, etc).
+Distributing a container image is described by the \gls{oci} distribution specification. The distribution specification defines all necessary components of an \gls{oci} image compatible registry
+and its basic operations. Described are the pull of an image (the act of downloading \glspl{blob} and manifests from the registry), the push of an image (the act of uploading \glspl{blob} and manifests to the registry),
+and the registry itself. 
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={An OCI image manifest with two layers, shortened sha256 checksums and two annotations},label={lst:imageManifest}]
@@ -658,10 +665,45 @@ variables, the command, the working directory, an entrypoint, the docker version
 \end{minipage}
 
 
-\section{Container Interfaces: CRI, CNI and CSI}
-\section{Kubernetes' Architecture}
-\section{Kubernetes' Application Programming Interface}
-\section{KubeEdge}
+\section{Container Interfaces}
+With the rise of the \glsfirst{oci}, more and more container management systems and orchestration services have been developed.
+While the implementations of the \glsfirst{cri} provides basic runtime functionality for executing containers, it became clear that
+an interface for running containers is not enough. The usecases for containers became more complex and orchestration services became
+distributed over large network topologies. This distribution lead to the necessity of standardized networking and storage interfaces.
+These interfaces are called \glsfirst{cni} and \glsfirst{csi}. This section summarizes both interfaces and gives a good introduction.
+However, this section is not meant as complete guide for implementing these interfaces. \glspl{csi} provide an interface for new storage providers.
+A storage provider is the vendor of the plugin implementation\cite{CSISpec}. Storage providers can be providers for local or remote storage.
+Every local storage differs and there are different ways on a system to provide storage for an application. Local Storage can be offered
+via device mappers, the \gls{lvm}, raw block devices, volume groups or many other operating system and hardware dependent systems. Remote
+storage equally complicated with additional network capabilities and protocols, such like \gls{nfs} or ceph (the distributed, fault-tolerant storage platform).
+Each of these storage providers have a different \gls{api} and different ways to read and write data on them.
+Container orchestrators implement the \gls{csi}. Communication between the \gls{csi} plugin and the container orchestrator happens over \gls{rpc}. The most common \gls{rpc} protocol
+in the cloud-native environment is \gls{grpc}. \gls{grpc} (invented in 2016 by Google) has the huge advantage that it is language independent, supports a very
+simple service definition via Protocol Buffers and bi-directional streaming with several security features like authentication\cite{GRPCConcepts}.
+Protocol Buffers is an \gls{idl}. \glspl{idl} offer a, for the developer, convenient way to describe an \gls{rpc} interface in a language independent and
+human-readable way. \gls{grpc} and Protocol Buffers are the tools of choice for the \gls{csi}. The \gls{csi} presents basic functionality for 
+dynamic provisioning of volumes (on-demand provisioning), attaching or detaching volumes, mounting or unmounting volumes from an orchestration node, creating or deleting snapshots
+or provisioning new volumes\cite{CSISpec}. Snapshots are one-time states of a volume with data, they are not equal to backups. Snapshots allow the storage provider
+to go back in time and restore data for a given time frame. For this operation the storage provider requires necessary metadata and a running service. This is what
+distances them from a backup. A backup offers a reliable way to restore a full dataset in case of a disaster (for instance a hardware outage). A snapshot does not
+offer this reliability and may fail if the underlying system is damaged. Usually, a storage provider implements an \glsfirst{api} that is \gls{csi} compatible
+or a third-party implements a service that interprets the \glspl{api} of the storage provider plugin and translates it, to be \gls{csi} compliant. When container orchestrators
+like Docker became distributed over multiple nodes the network became more relevant. The \glsfirst{cni} specification addresses this problem and proposes a standard interface
+for enhanced network capabilities for future container runtime and container orchestration solutions. Equally to the \gls{csi} specification, the \gls{cni} specification is language agnostic,
+but the reference implementation is written in Go\cite{CNISpec}. As of writing this thesis, there are already over 20 \gls{cni} compatible plugins from various cloud providers, hardware vendors
+or third-parties. These plugin differ significantly, because they address different use cases, problems or network environments. The \gls{cni} specification abstracts these differences and provides
+a common interface for all of them. \gls{cni} plugins are not bound to one specific layer of the \gls{osi}. For instance, the \gls{cni} plugin \emph{flannel} focuses on \gls{osi} layer 3 only, hence providing
+every container with its own unique routable \gls{ip} address via spanning an IPv4 network over all container orchestration nodes in a cluster (a cluster is a group of multiple orchestration nodes, responsible
+for running containers or managing the cluster)\cite{Flannel}. Other \gls{cni} plugins such like \emph{cilium} or \emph{calico} offer support for more \gls{osi} layers and more features, such like
+traffic encryption, traffic monitoring, network policies or more graduated network and routing capabilities.
+
+\section{Kubernetes}
+\subsection{Introduction and History}
+
+\subsection{Architecture}
+\subsection{Application Programming Interface (API)}
+\subsection{KubeEdge}
+\subsection{Impact on Reliability and Security}
 \chapter{Cloud Native and Aviation}
 \chapter{A first prototype}
 \section{Architecture}
