@@ -361,11 +361,15 @@ and monitor resources inside of a namespace via providing a pseudo-filesystem ca
 of one or more processes and each process is being modified by a subsystem (also known as resource controller). Subsystems work as modifiers
 for these processes. Via these modifiers it is possible to set specific limits or monitor the processes. For example, limiting the available
 \gls{cpu} time or memory for a process, increasing the priority for network traffic, limiting access to \gls{io} devices or
-monitoring events created by a process\cite{mancgroups}. The last two missing building block for secure containers are kernel capabilities and the \glsfirst{ebpf}.
+monitoring events created by a process\cite{mancgroups}. The last two missing building blocks for secure containers are kernel capabilities and the \glsfirst{ebpf}.
 Kernel capabilities provide a more granular access to kernel features such like mounting or creating ports\cite{dockersecurity}.
 Common kernel capabilities are \emph{CAP\_CHOWN} (changing the owner and group of a file), \emph{CAP\_NET\_BIND\_SERVICE} (allow the binding of ports under 1024), 
 \emph{CAP\_SYS\_ADMIN} (allow system administrator access), \emph{CAP\_NET\_ADMIN} (allow network administrator access, a complete list can be found
-in the corresponding man page for kernel capabilities\cite{mancapabilities}).
+in the corresponding man page for kernel capabilities\cite{mancapabilities}). The \glsfirst{ebpf} is the successor of the \glsfirst{bpf}. The \gls{bpf} is 
+well known for its human readable filtering language that allows filtering, monitoring and analyzing packets in computer networks. Core of the \gls{bpf}
+is a \gls{jit} compiler that translates the human readable \gls{bpf} language into machine readable byte code. Contrary to its predecessor, \gls{ebpf} is not limited
+to network packets. With Linux version 3.18, \gls{ebpf} has been embedded into the Linux kernel as virtual machine and allows filtering for any sort of \glsfirst{ipc},
+such like socket connections, system calls (syscalls) or kernel permission delegations.
 
 \section{Challenges and Opportunities}\label{section:Challenges_And_Opportunities}
 Prior, this thesis has explored past, present and future avionic system architectures. On the next pages it is going to examine
@@ -699,15 +703,27 @@ traffic encryption, traffic monitoring, network policies or more graduated netwo
 
 \section{Kubernetes}
 \subsection{Introduction and History}
+Although Docker has been released in 2013, Google has been using Containers for a much longer period of time. According to Google engineers, they are managing Linux containers at scale since
+at least 2006\cite{burns2016borg}. This long history of Linux container management lead to several internal container orchestration platforms within Google, such like Borg\cite{verma2015large}, Omega\cite{schwarzkopf2013omega} or Kubernetes\cite{kubernetesWebsite}.
+While Borg and Omega are internal projects and therefore proprietary, Kubernetes is open source and freely available on GitHub\cite{KubernetesGithub}. Since the Kubernetes release in 2014\cite{KubernetesFirstRelease}, Kubernetes has started a chain reaction
+in the industry. More and more projects have been founded around Kubernetes as distributed container orchestrator. The \glsfirst{cncf} landscape lists a plethora of different projects and project domains around Kubernetes, such like continuous integration and continuous delivery frameworks,
+service proxies, service meshes, Kubernetes compatible container runtimes, \glsfirst{cni} or \glsfirst{csi} plugins or security addons for Kubernetes. This extensibility is one of Kubernetes' many success drivers. Kubernetes offers everything necessary for running
+\gls{oci} compatible containers distributed on one or more Linux hosts, called nodes. These \gls{oci} compatible containers do not even need to be containers in the traditional sense. It is possible, with a little bit of effort and the KubeVirt project\cite{KubeVirt},
+to run small virtual machines with Kubernetes. Such virtualized containers are called microVMs. However, on default Kubernetes focuses on running containers as abstracted by namespaces, cgroups and other Linux kernel features. Kubernetes does this
+slightly differently to other container orchestrators. The smallest manageable unit in the Kubernetes world is being called a \emph{pod}. A pod consists of one or more containers and possesses a few additional properties to enhance container management and orchestration.
+The following sections will examine the differences between containers and pods and analyze Kubernetes' architecture.
+
+\subsection{Containers and Pods}
+
 
 \subsection{Architecture}
+
 \subsection{Application Programming Interface (API)}
 \subsection{KubeEdge}
 \subsection{Impact on Reliability and Security}
+\section{Secure Software Supply Chains}
 \chapter{Cloud Native and Aviation}
 \chapter{A first prototype}
-\section{Architecture}
-\chapter{Secure Software Supply Chains}
 \chapter{Conclusion}
 
 \nocite{*}
