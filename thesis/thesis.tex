@@ -369,7 +369,22 @@ in the corresponding man page for kernel capabilities\cite{mancapabilities}). Th
 well known for its human readable filtering language that allows filtering, monitoring and analyzing packets in computer networks. Core of the \gls{bpf}
 is a \gls{jit} compiler that translates the human readable \gls{bpf} language into machine readable byte code. Contrary to its predecessor, \gls{ebpf} is not limited
 to network packets. With Linux version 3.18, \gls{ebpf} has been embedded into the Linux kernel as virtual machine and allows filtering for any sort of \glsfirst{ipc},
-such like socket connections, system calls (syscalls) or kernel permission delegations.
+such like socket connections, system calls (syscalls) or kernel permission delegations. \autoref{fig:workloads} gives an overview over different workload partitioning and
+deployment techniques. On the far left is the traditional setup with the hardware, an operating system running on the hardware, the applications and their shared libraries.
+The second pillar shows a type 2 hypervisor with a hardware, an operating system, shared libraries on the operating system, a hypervisor and virtual machines. Each virtual machine
+comes with their own operating system, shared libraries and the actual payload (the application with the workload). The type 1 hypervisor simplifies this setup with running
+a hypervisor directly on the hardware. In this case, the hyperviso is hypervisor and operating system at once. The container deployment comes with the hardware, an operating system 
+and its shared libraries, a container runtime for running containers and containers running
+in this container runtime. Each container can consist of different parts. A container can consist of only one static built executable or an application and shared libraries.
+Shared libraries minimize the size of software via sharing common methods, for instance a library for \glsfirst{rpc} or \gls{dns} lookups. When the executable has been linked dynamically,
+the executable can dynamically look up these common methods.
+Contrary to dynamic linking is static linking, where a software is being compiled with all its dependencies into one executable. Although all deployment techniques may look similar at a first glimpse,
+they are indeed completely different. A virtual machine allows stricter isolation compared to running all applications without virtualization and a container can consist of a single binary.
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/workloads.pdf}
+    \caption{Overview over different workload partitioning and deployment techniques}\label{fig:workloads}
+\end{figure}
 
 \section{Challenges and Opportunities}\label{section:Challenges_And_Opportunities}
 Prior, this thesis has explored past, present and future avionic system architectures. On the next pages it is going to examine
