@@ -407,9 +407,7 @@ increase communication and share knowledge between all development entities. The
 security of software\cite{hoepman2007increased}. Restricting access to the source code may help restricting the attacker's knowledge for executing attacks, but it is shown that
 ``keeping the source code closed appears to be difficult''\cite{mercuri2003security}. Furthermore, patches for open source software are released twice as fast
 as for closed source software\cite{witten2001does}. The increased pace of patching the software underlines the increased development speed and its connected
-benefits.
-
-Many of the highlighted challenges are not new for the tech industry. The cloud industry has solved several of these challenges successfully.
+benefits. Many of the highlighted challenges are not new for the tech industry. The cloud industry has solved several of these challenges successfully.
 
 \chapter{Cloud-Native}
 \section{Introduction}
@@ -726,12 +724,23 @@ service proxies, service meshes, Kubernetes compatible container runtimes, \glsf
 \gls{oci} compatible containers distributed on one or more Linux hosts, called nodes. These \gls{oci} compatible containers do not even need to be containers in the traditional sense. It is possible, with a little bit of effort and the KubeVirt project\cite{KubeVirt},
 to run small virtual machines with Kubernetes. Such virtualized containers are called microVMs. However, on default Kubernetes focuses on running containers as abstracted by namespaces, cgroups and other Linux kernel features. Kubernetes does this
 slightly differently to other container orchestrators. The smallest manageable unit in the Kubernetes world is being called a \emph{pod}. A pod consists of one or more containers and possesses a few additional properties to enhance container management and orchestration.
-The following sections will examine the differences between containers and pods and analyze Kubernetes' architecture.
-
-\subsection{Containers and Pods}
-
+These differences will be explained in more detail in the following sections.
 
 \subsection{Architecture}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/kubernetes.pdf}
+    \caption{Overview over a Kubernetes cluster with three control nodes and three worker nodes}\label{fig:kubernetes}
+\end{figure}
+In this section, this thesis explores the architecture of Kubernetes. \autoref{fig:kubernetes} depicts a Kubernetes cluster with three control nodes and three worker nodes. Many control nodes form a control plane.
+Control nodes are responsible for managing the cluster, while worker nodes are carrying the actual application payload. In case of an airplane the worker nodes could for example carry applications for controlling
+the cabin temperature, lights or the entertainment system. Each node is connected to each other via a reliable and high available network plane (symbolized by a switch in the middle). All nodes consist of a
+an operating system (Linux) and a container runtime. The operating system is very often a highly specialized Linux distribution, for instance Flatcar Linux\cite{FlatcarLinux} or Fedora's CoreOS\cite{FedoraCoreOS}.
+Specialized Linux distributions have the huge advantage of being very minimal, high secure and require low maintenancy. They accomplish this via only shipping the Linux kernel, an init and service daemon like systemd\cite{systemd}
+and a very small read-only base system. System upgrades are conducted through ostree image updates. The ostree is the operating system tree containing the base system. Contrary to other traditional Linux distributions like Debian,
+these specialized Linux container operating systems do not update software independently. Instead, the system upgrade is conducted via upgrading the whole base system at once. This procedure allows a very high testability, reliability
+and a lower maintenance compared to traditional Linux distributions. On top of the operating system is the container runtime, popular container runtimes are containerd\cite{Containerd} or cri-o\cite{CRIO}. Docker was another famous
+container runtime for Kubernetes clusters, but it got recently deprecated in favor of containerd\cite{KubernetesDockerNews}.
 
 \subsection{Application Programming Interface (API)}
 \subsection{KubeEdge}
