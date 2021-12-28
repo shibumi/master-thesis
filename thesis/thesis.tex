@@ -733,14 +733,26 @@ These differences will be explained in more detail in the following sections.
     \caption{Overview over a Kubernetes cluster with three control nodes and three worker nodes}\label{fig:kubernetes}
 \end{figure}
 In this section, this thesis explores the architecture of Kubernetes. \autoref{fig:kubernetes} depicts a Kubernetes cluster with three control nodes and three worker nodes. Many control nodes form a control plane.
-Control nodes are responsible for managing the cluster, while worker nodes are carrying the actual application payload. In case of an airplane the worker nodes could for example carry applications for controlling
-the cabin temperature, lights or the entertainment system. Each node is connected to each other via a reliable and high available network plane (symbolized by a switch in the middle). All nodes consist of a
+Control nodes are responsible for managing the cluster, while worker nodes are carrying the actual application payload. In case of an airplane the worker nodes could, for example, carry applications for controlling
+the cabin temperature, lights or the entertainment system. Each node is connected to each other via a reliable and highly available network plane (symbolized by a switch in the middle). All nodes consist of a
 an operating system (Linux) and a container runtime. The operating system is very often a highly specialized Linux distribution, for instance Flatcar Linux\cite{FlatcarLinux} or Fedora's CoreOS\cite{FedoraCoreOS}.
 Specialized Linux distributions have the huge advantage of being very minimal, high secure and require low maintenancy. They accomplish this via only shipping the Linux kernel, an init and service daemon like systemd\cite{systemd}
 and a very small read-only base system. System upgrades are conducted through ostree image updates. The ostree is the operating system tree containing the base system. Contrary to other traditional Linux distributions like Debian,
 these specialized Linux container operating systems do not update software independently. Instead, the system upgrade is conducted via upgrading the whole base system at once. This procedure allows a very high testability, reliability
 and a lower maintenance compared to traditional Linux distributions. On top of the operating system is the container runtime, popular container runtimes are containerd\cite{Containerd} or cri-o\cite{CRIO}. Docker was another famous
-container runtime for Kubernetes clusters, but it got recently deprecated in favor of containerd\cite{KubernetesDockerNews}.
+container runtime for Kubernetes clusters, but it got recently deprecated in favor of containerd\cite{KubernetesDockerNews}. Everything above container runtime level depends on the role of the node. Additional components of a control
+node are an etcd\cite{etcd} instance, a kube-controller, a kube-scheduler and a kubeAPI instance. Etcd, is a highly available, reliable and distributed key-value store. Kubernetes uses etcd as its database for storing its actual 
+and desired state. Every change on the Kubernetes cluster will be stored in the etcd cluster running distributed on all control nodes. Concensus is achieved via Raft, an advanced concensus algorithm proposed
+by the Stanford University\cite{ongaro2013search}\cite{ongaro2014search}. Raft, that stands for replicant and fault-tolerant, implements consistency and partition tolerance as defined by Eric Brewer's CAP-theorem\cite{brewer2017spanner}.
+Eric Brewer's CAP theorem states that a distributed system can only implement two of three properties of the CAP theorem. These three properties are consistency, availability and partition tolerance. Consistency is when each node
+has the newest data, availability is when all read and write requests are always successful and partition tolerance means that the distributed continues to operate even when not all nodes are available\cite{bijlsma2020distributed}.
+Raft guarantees consistency and partition tolerance, but it cannot guarantee availability due to unknown factors like network outages.  Instead of using time, Raft uses election terms and roles for each node. Everytime an election is held,
+Raft will increment the term counter. On initialization all nodes have the role \emph{follower} and the term counter on each node is zero. The first election term begins with one follower nominating itself as \emph{candidate} and
+advertising this nomination to all other nodes. The other nodes will react with an acknowledgement and the candidate node will be promoted to a \emph{leader}. The leader node sends heartbeats to every other node in the cluster.
+When a cluster node receives such a heartbeat the node's timeout will be reset. As long as the leader stays healthy nothing happens and the cluster works as usual. As soon as the leader dies the other nodes will stop
+receiving heartbeats. The missing heartbeart will lead to a timeout expiration. When this happens the expired node will increment the election term counter and nominate itself for a new leader and the process starts from new.
+This process ensures the partition tolerance as defined by Eric Brewer's CAP theorem. Data can be added to the key-value store only through the leader node and all followers will forward write requests to the leader node. 
+The message is considered committed as soon as the majority of nodes acknowledged the write operation. Read operations can be done on every node. This is equal to Eric Brewer's consistency property of the CAP theorem.
 
 \subsection{Application Programming Interface (API)}
 \subsection{KubeEdge}
