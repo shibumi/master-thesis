@@ -20,6 +20,7 @@
 \usepackage{eurosym}
 \usepackage{tabu}
 \usepackage{caption}
+\usepackage{enumitem}
 \usepackage{csquotes}
 \lstset{%
     frame=tb,
@@ -735,13 +736,14 @@ These differences will be explained in more detail in the following sections.
 In this section, this thesis explores the architecture of Kubernetes. \autoref{fig:kubernetes} depicts a Kubernetes cluster with three control nodes and three worker nodes. Many control nodes form a control plane.
 Control nodes are responsible for managing the cluster, while worker nodes are carrying the actual application payload. In case of an airplane the worker nodes could, for example, carry applications for controlling
 the cabin temperature, lights or the entertainment system. Each node is connected to each other via a reliable and highly available network plane (symbolized by a switch in the middle). All nodes consist of a
-an operating system (Linux) and a container runtime. The operating system is very often a highly specialized Linux distribution, for instance Flatcar Linux\cite{FlatcarLinux} or Fedora's CoreOS\cite{FedoraCoreOS}.
+an operating system (Linux), a container runtime, a KubeProxy and a Kubelet. The operating system is very often a highly specialized Linux distribution, for instance Flatcar Linux\cite{FlatcarLinux} or Fedora's CoreOS\cite{FedoraCoreOS}.
 Specialized Linux distributions have the huge advantage of being very minimal, high secure and require low maintenancy. They accomplish this via only shipping the Linux kernel, an init and service daemon like systemd\cite{systemd}
 and a very small read-only base system. System upgrades are conducted through ostree image updates. The ostree is the operating system tree containing the base system. Contrary to other traditional Linux distributions like Debian,
 these specialized Linux container operating systems do not update software independently. Instead, the system upgrade is conducted via upgrading the whole base system at once. This procedure allows a very high testability, reliability
 and a lower maintenance compared to traditional Linux distributions. On top of the operating system is the container runtime, popular container runtimes are containerd\cite{Containerd} or cri-o\cite{CRIO}. Docker was another famous
-container runtime for Kubernetes clusters, but it got recently deprecated in favor of containerd\cite{KubernetesDockerNews}. Everything above container runtime level depends on the role of the node. Additional components of a control
-node are an etcd\cite{etcd} instance, a kube-controller, a kube-scheduler and a kubeAPI instance. Etcd, is a highly available, reliable and distributed key-value store. Kubernetes uses etcd as its database for storing its actual 
+container runtime for Kubernetes clusters, but it got recently deprecated in favor of containerd\cite{KubernetesDockerNews}. Other components of every cluster are the KubeProxy and the Kubelet. The Kubeproxy is responsible
+for network connections between each node and establishes connections to each pod\cite{KubernetesComponents}. Kubelets are Kubernetes agents and are managing containers in each pod.
+Additional components of a control node are an etcd\cite{etcd} instance, a Kube-Controller, a Kube-Scheduler and a KubeAPI instance. Etcd, is a highly available, reliable and distributed key-value store. Kubernetes uses etcd as its database for storing its actual 
 and desired state. Every change on the Kubernetes cluster will be stored in the etcd cluster running distributed on all control nodes. Concensus is achieved via Raft, an advanced concensus algorithm proposed
 by the Stanford University\cite{ongaro2013search}\cite{ongaro2014search}. Raft, that stands for replicant and fault-tolerant, implements consistency and partition tolerance as defined by Eric Brewer's CAP-theorem\cite{brewer2017spanner}.
 Eric Brewer's CAP theorem states that a distributed system can only implement two of three properties of the CAP theorem. These three properties are consistency, availability and partition tolerance. Consistency is when each node
@@ -753,8 +755,82 @@ When a cluster node receives such a heartbeat the node's timeout will be reset. 
 receiving heartbeats. The missing heartbeart will lead to a timeout expiration. When this happens the expired node will increment the election term counter and nominate itself for a new leader and the process starts from new.
 This process ensures the partition tolerance as defined by Eric Brewer's CAP theorem. Data can be added to the key-value store only through the leader node and all followers will forward write requests to the leader node. 
 The message is considered committed as soon as the majority of nodes acknowledged the write operation. Read operations can be done on every node. This is equal to Eric Brewer's consistency property of the CAP theorem.
-
+Further control node components are the Kube-Controller, the Kube-Scheduler and the KubeAPI. The KubeAPI provides an \glsfirst{api} endpoint for the cluster and external clients, for instance an admin who triggers changes on the cluster.
+If a pod gets created the Kube-Scheduler will schedule the pod on a free node. Kubernetes supports different scheduling and rollout strategies for deployments. Finally, the Kube-Controller implements different processes for controlling
+the cluster. For example, the Kube-Controller populates endpoints, takes care of service accounts, creates jobs or notices a node failure and responds accordingly\cite{KubernetesComponents}.
 \subsection{Application Programming Interface (API)}
+One of Kubernetes' biggest success factors is its extensibility. Kubernetes provides a good maintained \glsfirst{api} and implements necessary interfaces for extending Kubernetes with functionality. In this section, this thesis
+will highlight the most common \gls{api} resources in the Kubernetes \gls{api}, their purpose and their capabilities. For exploring the Kubernetes \gls{api} this thesis uses a single node cluster bootstrapped via Minikube\cite{Minikube}.
+Minikube, written in Go, is a wrapper for bootstrapping a Kubernetes Cluster inside of one or more virtual machines. It allows a fast setup for local development and testing purposes, ideally for this thesis. Installing Minikube is rather easy:
+One just have has to download Minikube from its official website and run the following command: \emph{minikube start --cpus 4 --memory 4096 --vm}. For running this command virtualbox is required as hypervisor. The command will download a slim
+virtual machine, provision it with 4 \gls{cpu} cores and 4096 megabytes of \gls{ram}. The \emph{--vm} flag will choose the virtual machine backend type. Minikube is able to provision a Kubernetes cluster directly on Docker, but this does not work
+on every operating system and is therefore Linux only. Running the start command of Minikube will setup a single-node cluster with its own control plane. The node will work as control node and worker node at the same time. \autoref{lst:minikubeStart}
+shows the bootstrapping process of a single node Kubernetes cluster via Minikube. With the running cluster it is possible to automatically download and install the Kubernetes client tool \emph{kubectl} and 
+list all Kubernetes \gls{api} resources via the command: \emph{minikubectl kubectl api-resources -- -o name}. \autoref{lst:apiResources} lists the most important Kubernetes \gls{api} resources.
+Pods consist of one or more containers. Configmaps store configuration data. Limitranges allow configuring resource constraints for deployments. Namespaces group resources and allow isolation between these groups.
+Nodes represent the node configuration. Storageclasses are classes for persistent storage, for example SSD hard disk storage or a network storage. Persistentvolumes hold information about persistent storage volumes for a given storage class.
+persistentvolumeclaims represent the relationship between a container and a persistent volume. Podtemplates are re-usable templates for pods. Resourcequotas define a hard limit for resource consumption for a namespace.
+Secrets provide secret information, for instance secret configuration data. Services expose pods to the cluster-internal or external network. Daemonsets deploy pods on every cluster worker node. Deployments are a generic form of deploying pods, heavily modifiable.
+Replicasets are a mirror of the current state of replicas of a pod in the cluster. Statefulsets ensure that pods are deployed in a specific order and with a fixed set of volumes. Horizontalpodautoscalers provide the ability to up- or downscale pods dynamically depending on resource consumption.
+Cronjobs provide the ability to run pods on a fixed datetime. Jobs provide the ability to run pods just once. Ingresses are entrypoints for internal or external services, typically via HTTP/HTTPS. Networkpolicies provide isolation between pods on network layer.
+poddisruptionbudgets manage budgets for pod failure or planned pod movements between nodes. Serviceaccounts manage access to \gls{api} resources via a \gls{rbac} model. Clusterrolebindings are bindings for roles on cluster level and service accounts.
+Clusterroles are roles on cluster level specifying the permissions for a service account via verbs: read, write, etc. Rolebindings are bindings for roles on namespace level, establishing the relationship between a role and a service account.
+Roles work on namespace level and provide permissions for a service account via verbs.
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Running the minikube start command},label={lst:minikubeStart},basicstyle=\small]
+$ minikube start --cpus 4 --memory 4096 --vm
+minikube v1.24.0 on Arch rolling
+> KUBECONFIG=/home/chris/.kube/config:
+Automatically selected the virtualbox driver
+Downloading VM boot image
+> minikube-v1.24.0.iso.sha256: 65 B / 65 B [-------------] 100.00% ? p/s 0s
+> minikube-v1.24.0.iso: 225.58 MiB / 225.58 MiB  100.00% 25.23 MiB p/s 9.1s
+Starting control plane node minikube in cluster minikube
+Creating virtualbox VM (CPUs=4, Memory=4096MB, Disk=20000MB)
+Preparing Kubernetes v1.22.3 on Docker 20.10.8
+> Generating certificates and keys
+> Booting up control plane
+> Configuring RBAC rules
+> Using image gcr.io/k8s-minikube/storage-provisioner:v5
+Verifying Kubernetes components
+Enabled addons: default-storageclass, storage-provisioner
+Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+\end{lstlisting}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Listing api resources in a Kubernetes Cluster (shortened)},label={lst:apiResources}]
+$ minikube kubectl api-resources -- -o name
+configmaps
+limitranges
+namespaces
+nodes
+persistentvolumeclaims
+persistentvolumes
+pods
+podtemplates
+resourcequotas
+secrets
+serviceaccounts
+services
+daemonsets.apps
+deployments.apps
+replicasets.apps
+statefulsets.apps
+horizontalpodautoscalers.autoscaling
+cronjobs.batch
+jobs.batch
+ingresses.networking.k8s.io
+networkpolicies.networking.k8s.io
+poddisruptionbudgets.policy
+clusterrolebindings.rbac.authorization.k8s.io
+clusterroles.rbac.authorization.k8s.io
+rolebindings.rbac.authorization.k8s.io
+roles.rbac.authorization.k8s.io
+storageclasses.storage.k8s.io
+\end{lstlisting}
+\end{minipage}
 \subsection{KubeEdge}
 \subsection{Impact on Reliability and Security}
 \section{Secure Software Supply Chains}
