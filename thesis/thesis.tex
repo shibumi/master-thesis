@@ -853,8 +853,19 @@ Accounting refers to consumption logging and controlling means to trigger action
 for the whole Kubernetes pod. This root \gls{cgroup} makes it possible to control all container \glsplural{cgroup} via one pod \gls{cgroup} and to introduce outer limits for pod itself. Deploying a new static Kubernetes pod to a Kubernetes cluster requires
 a running Kubernetes (for instance via Minikube) and the Kubernetes client software \emph{kubectl}. Pod \gls{api} resources can be described either in JSON or YAML. JSON and YAML are both data interchange formats. These data formats are passed to the Kubernetes
 \gls{api} via Kubernetes' \glsfirst{rest} \gls{api}. \gls{rest} allows to contact the Kubernetes \gls{api} over \gls{https}. Access to the Kubernetes \gls{rest} \gls{api} is protected via \emph{X.509 certificates} and \gls{api} objects can be added, modified or deleted via basic
-\gls{http} methods, such like \emph{GET}, \emph{PUT} and \emph{DELETE}.
-
+\gls{http} methods, such like \emph{GET}, \emph{PUT} and \emph{DELETE}. \autoref{lst:pod} presents a YAML deployment file for a Kubernetes pod. Line 1-7 specify the \gls{api} version, the \gls{api} resource kind (pod) and additional metadata, like the name,
+target namespace and additional labels for easier selection and identification of the running pod. With line 8 the actual Kubernetes pod definition starts with a list of containers (line 9). The showed pod definition has only one container called \emph{web} 
+with the Docker image \emph{docker.io/nginx:1.12.5}. Line 12 exposes the nginx webserver in the container via port 80 and \gls{tcp} (a stateful network protocol for sending and receiving data). Line 16 specifies resource limits and requests for the container.
+The container can use up to 100 milli \gls{cpu} (one \gls{cpu} consists of 1000 milli \gls{cpu} units) and 100 megabytes of \gls{ram}. Milli \gls{cpu} allows to partition \gls{cpu} consumption in reserved units. The limit limitis the container \gls{cpu} usage and the requests field
+tells the Kube-Scheduler how much the container needs. If the limits and request matches each other, the Kubernetes pod is sorted into the \glsfirst{qos} class \emph{Guaranteed}\cite{KubernetesQOS}. \gls{qos} classes are used for scheduling containers on the cluster.
+Kubernetes supports the following \gls{qos} classes: \emph{Guaranteed} states that the container will have a guaranteed resource consumption. If a cluster node is overprovisioned, other less important containers will be re-scheduled on a different node or 
+stopped in favor of guaranteed containers. \emph{Burstable} states that a container is scheduled on a cluster with a fixed request value, but the container is allowed to create resource consumption bursts. This is, for instance,
+the case when a container, suddenly, gets a very high load due to higher usage. An example in the aviation domain could be a container responsible for flight entertainment in the passenger cabin. The flight entertainment may have times
+of higher and lower usage depending on the flight length (sleeping passengers etc.). A container is sorted into the \emph{Burstable} class, when the container has at least one requests value for memory or \gls{cpu}. The \emph{BestEffort}
+\gls{qos} class is used for all containers without a limit or request value, these containers are scheduled on the cluster node per best effort and may be stopped or re-scheduled on a different node every time.
+If a container uses more than the specified \gls{ram} the \gls{cgroup} will notice this and kill the process in the container. This behavior is different to reaching the \gls{cpu} limit. When the \gls{cpu} limit is reached the container
+will be throttled. Throttling a \gls{cpu} is, when a process gets less \gls{cpu} time from the operating system. Many processes are not being executed in parallel by a single \gls{cpu} core, instead the \gls{cpu} schedules execution time
+for each process with different queueing methods.
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={An example pod definition in YAML},label={lst:pod}]
@@ -876,6 +887,9 @@ spec:
     resources:
       limits:
         cpu: 100m
+        memory: 100M
+      requests:
+        cpu: 100M
         memory: 100M
 \end{lstlisting}
 \end{minipage}
