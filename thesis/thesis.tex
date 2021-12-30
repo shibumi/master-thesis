@@ -344,7 +344,7 @@ The first namespace \emph{mnt} specifies the filesystem hierarchy for the isolat
 to mount only a specific directory structure into the isolated environment. This ensures that a process from environment \emph{A} cannot
 access files on the host system or in another environment. The \emph{mnt} namespace has become especially useful in combination with union file systems.
 Union file systems are layered filesystems and allow to mount multiple directory structures over each other. Docker uses this technology for combining
-different layers to a full docker container image. The second namespace \emph{pid} gives the system the opportunity to run multiple processes 
+different layers to a full Docker container image. The second namespace \emph{pid} gives the system the opportunity to run multiple processes 
 with the same \glspl{pid} on the host system. Running multiple processes with the same \gls{pid} on one system fulfills different purposes.
 On one hand this provides reliability across different hosts. Via this approach it is possible to run a process with the same \gls{pid} in different
 environments on different physical hosts. On the other hand it provides isolation. The process can only see other processes contained in the same namespace\cite{lwnnamespace}.
@@ -457,12 +457,12 @@ static binaries inside of Docker. This is common practice for languages like Rus
 of the image makes it impossible for an attacker to gain shell access to such a container and missing additional executables make it difficult to
 exploit additional executables for building an attack chain (for example via using network utilities for opening a reverse shell into the container).
 \autoref{lst:dockerfile} shows an example multi-stage Dockerfile with different layers. Each line in the file is a separate layer in the final image
-and each \emph{FROM} statement defines a different stage in the docker image build process. In the first stage of the Dockerfile
+and each \emph{FROM} statement defines a different stage in the Docker image build process. In the first stage of the Dockerfile
 a small hello world program will be written in the programming language Go (often referred to as Golang) and compiled. In the second stage,
 the executable from the first stage will be copied to the new second stage, placing it into a \emph{distroless} image for reducing the possible
-attack surface and making the executable available for further distribution as docker image. The first stage starts with the statement
-\emph{FROM docker.io/golang:1.17 AS GO\_BUILD}, setting the base image to \emph{golang} with version 1.17 from the docker registry \emph{docker.io}
-and naming this stage \emph{GO\_BUILD}. A docker registry is a public or private repository for docker images. 
+attack surface and making the executable available for further distribution as Docker image. The first stage starts with the statement
+\emph{FROM docker.io/golang:1.17 AS GO\_BUILD}, setting the base image to \emph{golang} with version 1.17 from the Docker registry \emph{docker.io}
+and naming this stage \emph{GO\_BUILD}. A Docker registry is a public or private repository for Docker images. 
 The second statement \emph{WORKDIR /go/src/app} sets the working directory for the build process. It is comparable to moving to a folder
 in a Windows system or changing the directory in a Linux system via the command line command \emph{cd}. The next three statements starting
 with \emph{ENV} are setting environment variables. Environment variables are an operating system feature for setting variables outside
@@ -480,7 +480,7 @@ copy the built executable from the first stage into the new second stage and the
 the path of the application as entrypoint for the container startup. It is important to differ between images and containers.
 Containers are running instances of images. The entrypoint is the start point from each container and be compared to the main function
 of most C-alike programming languages or the init system of a modern operating system. \autoref{lst:dockerbuild} shows
-the output of building the docker image. Each step is equal to one layer of the final image and each layer has a unique
+the output of building the Docker image. Each step is equal to one layer of the final image and each layer has a unique
 \gls{sha256} checksum over the binary content of the layer for ensuring integrity and reproducibility. This minor information
 has a unique impact on supply chain security, developer experience and costs, because with each layer cryptographically
 identified it is much more difficult to tamper with the build process, allowing secure access to cached layers
@@ -569,9 +569,9 @@ between each layer and their target platform \cite{ImageLayoutSpec}. \gls{oci} l
 define the structure of the \gls{oci} image, the configuration specifies the environments, entrypoints, volumes, working directory, commands that should be executed and other configuration parameters.
 The \emph{docker image inspect <docker image>} command prints a full OCI image configuration for a given image. \autoref{lst:imageConfiguration} shows the output of this command
 for the prior mentioned OCI image, built from \autoref{lst:dockerfile}. The output has been cut down to the most important parts. Clearly visible are the environment in form of environment
-variables, the command, the working directory, an entrypoint, the docker version, a build date and the root file system layers. If compared with \autoref{lst:dockerfile} the similarities are obvious. 
+variables, the command, the working directory, an entrypoint, the Docker version, a build date and the root file system layers. If compared with \autoref{lst:dockerfile} the similarities are obvious. 
 This image configuration works as interface for the runtime specification. The \gls{cri} provides an interface for running \gls{oci} compatible images. Common implementations of the \gls{cri} are
-docker, containerd\cite{Containerd} or cri-o\cite{CRIO}. Containers are encoded as filesystem bundles. A filesystem bundle consists of the container configuration as specified in the \gls{oci} image specification
+Docker, Containerd\cite{Containerd} or cri-o\cite{CRIO}. Containers are encoded as filesystem bundles. A filesystem bundle consists of the container configuration as specified in the \gls{oci} image specification
 and the container's root filesystem (referenced in the image configuration)\cite{FilesystemBundle}. These filesystem bundles are executed by the container runtime. The container runtime manages the state and the lifecycle
 of the container. Every container runtime implementation must fulfil the \gls{cri} specification's lifecycle operations and commands for basic runtime interaction (create, start, stop, kill, etc).
 Distributing a container image is described by the \gls{oci} distribution specification. The distribution specification defines all necessary components of an \gls{oci} image compatible registry
@@ -740,8 +740,8 @@ an operating system (Linux), a container runtime, a KubeProxy and a Kubelet. The
 Specialized Linux distributions have the huge advantage of being very minimal, high secure and require low maintenancy. They accomplish this via only shipping the Linux kernel, an init and service daemon like systemd\cite{systemd}
 and a very small read-only base system. System upgrades are conducted through ostree image updates. The ostree is the operating system tree containing the base system. Contrary to other traditional Linux distributions like Debian,
 these specialized Linux container operating systems do not update software independently. Instead, the system upgrade is conducted via upgrading the whole base system at once. This procedure allows a very high testability, reliability
-and a lower maintenance compared to traditional Linux distributions. On top of the operating system is the container runtime, popular container runtimes are containerd\cite{Containerd} or cri-o\cite{CRIO}. Docker was another famous
-container runtime for Kubernetes clusters, but it got recently deprecated in favor of containerd\cite{KubernetesDockerNews}. Other components of every cluster are the KubeProxy and the Kubelet. The Kubeproxy is responsible
+and a lower maintenance compared to traditional Linux distributions. On top of the operating system is the container runtime, popular container runtimes are Containerd\cite{Containerd} or cri-o\cite{CRIO}. Docker was another famous
+container runtime for Kubernetes clusters, but it got recently deprecated in favor of Containerd\cite{KubernetesDockerNews}. Other components of every cluster are the KubeProxy and the Kubelet. The Kubeproxy is responsible
 for network connections between each node and establishes connections to each pod\cite{KubernetesComponents}. Kubelets are Kubernetes agents and are managing containers in each pod.
 Additional components of a control node are an etcd\cite{etcd} instance, a Kube-Controller, a Kube-Scheduler and a KubeAPI instance. Etcd, is a highly available, reliable and distributed key-value store. Kubernetes uses etcd as its database for storing its actual 
 and desired state. Every change on the Kubernetes cluster will be stored in the etcd cluster running distributed on all control nodes. Concensus is achieved via Raft, an advanced concensus algorithm proposed
@@ -758,7 +758,7 @@ The message is considered committed as soon as the majority of nodes acknowledge
 Further control node components are the Kube-Controller, the Kube-Scheduler and the KubeAPI. The KubeAPI provides an \glsfirst{api} endpoint for the cluster and external clients, for instance an admin who triggers changes on the cluster.
 If a pod gets created the Kube-Scheduler will schedule the pod on a free node. Kubernetes supports different scheduling and rollout strategies for deployments. Finally, the Kube-Controller implements different processes for controlling
 the cluster. For example, the Kube-Controller populates endpoints, takes care of service accounts, creates jobs or notices a node failure and responds accordingly\cite{KubernetesComponents}.
-\subsection{Application Programming Interface (API)}
+\subsection{Application Programming Interface (API) Overview}
 One of Kubernetes' biggest success factors is its extensibility. Kubernetes provides a good maintained \glsfirst{api} and implements necessary interfaces for extending Kubernetes with functionality. In this section, this thesis
 will highlight the most common \gls{api} resources in the Kubernetes \gls{api}, their purpose and their capabilities. For exploring the Kubernetes \gls{api} this thesis uses a single node cluster bootstrapped via Minikube\cite{Minikube}.
 Minikube, written in Go, is a wrapper for bootstrapping a Kubernetes Cluster inside of one or more virtual machines. It allows a fast setup for local development and testing purposes, ideally for this thesis. Installing Minikube is rather easy:
@@ -775,7 +775,7 @@ Replicasets are a mirror of the current state of replicas of a pod in the cluste
 Cronjobs provide the ability to run pods on a fixed datetime. Jobs provide the ability to run pods just once. Ingresses are entrypoints for internal or external services, typically via HTTP/HTTPS. Networkpolicies provide isolation between pods on network layer.
 poddisruptionbudgets manage budgets for pod failure or planned pod movements between nodes. Serviceaccounts manage access to \gls{api} resources via a \gls{rbac} model. Clusterrolebindings are bindings for roles on cluster level and service accounts.
 Clusterroles are roles on cluster level specifying the permissions for a service account via verbs: read, write, etc. Rolebindings are bindings for roles on namespace level, establishing the relationship between a role and a service account.
-Roles work on namespace level and provide permissions for a service account via verbs.
+Roles work on namespace level and provide permissions for a service account via verbs. The following sections will explain some of the prior mentioned \gls{api} resources in more detail.
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Running the minikube start command},label={lst:minikubeStart},basicstyle=\small]
@@ -829,6 +829,54 @@ clusterroles.rbac.authorization.k8s.io
 rolebindings.rbac.authorization.k8s.io
 roles.rbac.authorization.k8s.io
 storageclasses.storage.k8s.io
+\end{lstlisting}
+\end{minipage}
+\subsection{Pods}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/pods.pdf}
+    \caption{Comparing a Docker container to a pod\cite{DockerAndPods}}\label{fig:pods}
+\end{figure}
+Pods are the smallest manageable unit in a Kubernetes cluster and consist of one or more containers. Containers heavily rely on Linux kernel features such like namespaces, \glsfirstplural{cgroup}, kernel capabilities
+or the \glsfirst{ebpf}. \autoref{fig:pods} compares a Docker container with a Kubernetes pod and highlights the different namespace arrangements in each unit. The Docker container visualization on the left
+shows a Docker container with the kernel namespaces, its cgroup and the process running in the container. On the right the figure depicts a Kubernetes pod consisting of one sandbox container and two workload
+containers with one or more processes in each of them. The sandbox container works as initializer. It setups the net, uts and ipc namespaces as environment for all containers in the pod and creates an idle process.
+The pause process in the sandbox container does nothing\cite{KubernetesPauseContainer} and the container acts only as initialization point for the pod itself. Environments do not need to be kernel namespaces.
+In theory, a sandbox \glsfirst{cri} operation could also start a virtual machine and setup a virtual machine environment\cite{KubernetesSandbox}. The \gls{cri} allows full abstraction. For simplicity reasons, this thesis continues with
+containers only. The namespaces net, uts and ipc are responsible for setting up a network for all containers within the Kubernetes pod (net namespace), setting a host and domain name for the pod (uts namespace) and establishing \glsfirst{ipc}
+between the containers. Sharing \gls{ipc} capabilities between containers will be interesting in future chapters for avionics and reliability constraints. Workload containers implement the actual application payload. \autoref{fig:pods} shows
+two workload containers with one or more processes in each of them. To mimic the same setup with Docker, there would be two containers in Docker with one or more processes in each of them. Each container in the Kubernetes pod
+has its own mnt and pid namespaces for isolated mount tables and process isolation. This means that each container can mount its own additional external volumes and only sees the processes in the container, processes in other containers in the same pod
+or even on the host system are hidden for the processes in the container. Another major difference between the Docker container and the Kubernetes pod is the \glsplural{cgroup} layout. The Docker container has just one \gls{cgroup}. The \gls{cgroup}
+is responsible for resource limiting, prioritization, accounting and controlling. Resources can be anything from \gls{cpu} or \gls{ram} usage or even file system cache\cite{singh2007containers}. Prioritization means that processes in the container can be prioritized.
+Accounting refers to consumption logging and controlling means to trigger actions if certain thresholds get exceeded, for instance killing a process that consumes too much \gls{ram}. A Kubernetes pod has one \gls{cgroup} per container and one root \gls{cgroup}
+for the whole Kubernetes pod. This root \gls{cgroup} makes it possible to control all container \glsplural{cgroup} via one pod \gls{cgroup} and to introduce outer limits for pod itself. Deploying a new static Kubernetes pod to a Kubernetes cluster requires
+a running Kubernetes (for instance via Minikube) and the Kubernetes client software \emph{kubectl}. Pod \gls{api} resources can be described either in JSON or YAML. JSON and YAML are both data interchange formats. These data formats are passed to the Kubernetes
+\gls{api} via Kubernetes' \glsfirst{rest} \gls{api}. \gls{rest} allows to contact the Kubernetes \gls{api} over \gls{https}. Access to the Kubernetes \gls{rest} \gls{api} is protected via \emph{X.509 certificates} and \gls{api} objects can be added, modified or deleted via basic
+\gls{http} methods, such like \emph{GET}, \emph{PUT} and \emph{DELETE}.
+
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={An example pod definition in YAML},label={lst:pod}]
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+  namespace: default
+  labels:
+    app: example pod application
+spec:
+  containers:
+  - name: web
+    image: docker.io/nginx:1.21.5
+    ports:
+    - name: web
+      containerPort: 80
+      protocol: TCP
+    resources:
+      limits:
+        cpu: 100m
+        memory: 100M
 \end{lstlisting}
 \end{minipage}
 \subsection{KubeEdge}
