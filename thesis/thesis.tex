@@ -831,7 +831,7 @@ roles.rbac.authorization.k8s.io
 storageclasses.storage.k8s.io
 \end{lstlisting}
 \end{minipage}
-\subsection{Pods}
+\subsection{Pods}\label{subsection:pods}
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{figures/pods.pdf}
@@ -851,11 +851,11 @@ or even on the host system are hidden for the processes in the container. Anothe
 is responsible for resource limiting, prioritization, accounting and controlling. Resources can be anything from \gls{cpu} or \gls{ram} usage or even file system cache\cite{singh2007containers}. Prioritization means that processes in the container can be prioritized.
 Accounting refers to consumption logging and controlling means to trigger actions if certain thresholds get exceeded, for instance killing a process that consumes too much \gls{ram}. A Kubernetes pod has one \gls{cgroup} per container and one root \gls{cgroup}
 for the whole Kubernetes pod. This root \gls{cgroup} makes it possible to control all container \glsplural{cgroup} via one pod \gls{cgroup} and to introduce outer limits for pod itself. Deploying a new static Kubernetes pod to a Kubernetes cluster requires
-a running Kubernetes (for instance via Minikube) and the Kubernetes client software \emph{kubectl}. Pod \gls{api} resources can be described either in JSON or YAML. JSON and YAML are both data interchange formats. These data formats are passed to the Kubernetes
+a running Kubernetes (for instance via Minikube) and the Kubernetes client software \emph{kubectl}. Pod \gls{api} resources can be described either in \gls{json} or \gls{yaml}. \gls{json} and \gls{yaml} are both data interchange formats. These data formats are passed to the Kubernetes
 \gls{api} via Kubernetes' \glsfirst{rest} \gls{api}. \gls{rest} allows to contact the Kubernetes \gls{api} over \gls{https}. Access to the Kubernetes \gls{rest} \gls{api} is protected via \emph{X.509 certificates} and \gls{api} objects can be added, modified or deleted via basic
-\gls{http} methods, such like \emph{GET}, \emph{PUT} and \emph{DELETE}. \autoref{lst:pod} presents a YAML deployment file for a Kubernetes pod. Line 1-7 specify the \gls{api} version, the \gls{api} resource kind (pod) and additional metadata, like the name,
+\gls{http} methods, such like \emph{GET}, \emph{PUT} and \emph{DELETE}. \autoref{lst:pod} presents a \gls{yaml} deployment file for a Kubernetes pod. Line 1-7 specify the \gls{api} version, the \gls{api} resource kind (pod) and additional metadata, like the name,
 target namespace and additional labels for easier selection and identification of the running pod. With line 8 the actual Kubernetes pod definition starts with a list of containers (line 9). The showed pod definition has only one container called \emph{web} 
-with the Docker image \emph{docker.io/nginx:1.12.5}. Line 12 exposes the nginx webserver in the container via port 80 and \gls{tcp} (a stateful network protocol for sending and receiving data). Line 16 specifies resource limits and requests for the container.
+with the Docker image \emph{docker.io/nginx:1.12.5}. Notice how the sandbox container is not listed in the pod definition. Sandbox containers are added to the pod automatically. Line 12 exposes the nginx webserver in the container via port 80 and \gls{tcp} (a stateful network protocol for sending and receiving data). Line 16 specifies resource limits and requests for the container.
 The container can use up to 100 milli \gls{cpu} (one \gls{cpu} consists of 1000 milli \gls{cpu} units) and 100 megabytes of \gls{ram}. Milli \gls{cpu} allows to partition \gls{cpu} consumption in reserved units. The limit limitis the container \gls{cpu} usage and the requests field
 tells the Kube-Scheduler how much the container needs. If the limits and request matches each other, the Kubernetes pod is sorted into the \glsfirst{qos} class \emph{Guaranteed}\cite{KubernetesQOS}. \gls{qos} classes are used for scheduling containers on the cluster.
 Kubernetes supports the following \gls{qos} classes: \emph{Guaranteed} states that the container will have a guaranteed resource consumption. If a cluster node is overprovisioned, other less important containers will be re-scheduled on a different node or 
@@ -865,7 +865,9 @@ of higher and lower usage depending on the flight length (sleeping passengers et
 \gls{qos} class is used for all containers without a limit or request value, these containers are scheduled on the cluster node per best effort and may be stopped or re-scheduled on a different node every time.
 If a container uses more than the specified \gls{ram} the \gls{cgroup} will notice this and kill the process in the container. This behavior is different to reaching the \gls{cpu} limit. When the \gls{cpu} limit is reached the container
 will be throttled. Throttling a \gls{cpu} is, when a process gets less \gls{cpu} time from the operating system. Many processes are not being executed in parallel by a single \gls{cpu} core, instead the \gls{cpu} schedules execution time
-for each process with different queueing methods.
+for each process with different queueing methods. \autoref{lst:pod} shows only very small set of configuration options. The full Kubernetes pod \gls{api} consists of more than 1000 possible configuration options reaching from liveness and readiness probes,
+to security modifications, mounting volumes and devices from the host system, more advanced network configuration and many other possible configurations that are useful for running containers in a big scale in production (retrieved via running the command:
+\emph{minikube kubectl explain -- -recursive | wc -l}).
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={An example pod definition in YAML},label={lst:pod}]
@@ -875,7 +877,7 @@ metadata:
   name: example-pod
   namespace: default
   labels:
-    app: example pod application
+    app: example-pod-application
 spec:
   containers:
   - name: web
@@ -893,8 +895,104 @@ spec:
         memory: 100M
 \end{lstlisting}
 \end{minipage}
-\subsection{KubeEdge}
-\subsection{Impact on Reliability and Security}
+\subsection{Namespaces, LimitRanges and ResourceQuotas}
+A namespace groups resources logically for better filtering, selecting and operating on Kubernetes \gls{api} resources.
+Most Kubernetes \gls{api} resources can be namespaced (placed into a namespace). On their own namespaces provide no network isolation.
+For strict network isolation a \glsfirst{cni} plugin is necessary and the definition of network policies via the networkPolicy \gls{api}
+resource. \autoref{lst:namespace} depicts a definition of one namespace called entertainment, a limitRange and resourceQuota.
+The namespace works as environment for other \gls{api} resources, like deployments or pods. The limitRange \gls{api} resource
+allows to set limits and requests for each created container in the selected namespace. ResourceQuotas are responsible for
+setting hard limits for the namespace as a whole. The resourceQuota in \autoref{lst:namespace} specifies a maximum limit
+of 10 pods in the entertainment namespace. Furthermore, it sets a limit and request value for the \gls{cpu} and \gls{ram} for
+the entertainment namespace to one \gls{cpu} and one gigabyte. Thus, the Kubernetes-Scheduler enforces these limits, making it impossible
+to schedule more than 10 pods in the entertainment namespace and constantly monitoring the resource consumption. If a pod exceeds their
+limits, the pod will be either throttled (in case of \gls{cpu} bursts) or the process in the pod container will be killed {in case of too high \gls{ram} consumption}.
+These three \gls{api} resources enforce a very tight control over resources and enhances the reliability of applications running on the cluster.
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Namespace definition for a namespace called entertainment with limitRange and ResourceQuota},label={lst:namespace}]
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: entertainment
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: entertainment-limitrange
+  namespace: entertainment
+spec:
+  limits:
+  - default:
+      cpu: 100m
+      memory: 100M
+    defaultRequest:
+      cpu: 100m
+      memory: 100M
+    type: Container
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: entertainment-rq
+  namespace: entertainment
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "1"
+    requests.memory: 1G
+    limits.cpu: "1"
+    limits.memory: 1G
+\end{lstlisting}
+\end{minipage}
+\subsection{Deployments, Statefulsets and Daemonsets}
+Multiple instances of the same Kubernetes pod are called a replicaset. A deployment manages pods and replicasets. With deployments it is possible to define a desired state of an application. Kubernetes tries to match
+this desired state via spinning up the pods and replicas of these pods, as defined in the deployment's definition. \autoref{lst:deployment} demonstrates a Kubernetes deployment representation in \gls{yaml}.
+Line 18 to 31 are similar to the pod definition in \autoref{lst:pod}. The most importants of the deployment definition are from Line 9 to Line 16. These lines specify the replica count, a label selector
+and the begin of the pod template definition. The replica count in line 9 sets the number of replicas. This means that Kubernetes tries to schedule three pods of as replicaset running the same containers.
+The label selector in line 10 selects the pod definitions that should be scheduled by label. Line 16 shows the matched labels. Statefulsets and daemonsets are very similar to deployments.
+The major differences between deployments and statefulsets ensure that all pods are scheduled in a persistent order and pods get a number suffix instead of a
+random string suffix when scheduled on the cluster\cite{KubernetesStatefulset}. A persistent order and pod uniqueness is notably important for stateful applications with storage or sticky network sessions. A daemonset schedules the pod on every node. 
+This behavior is especially useful for logging or storage management daemons running on every node\cite{KubernetesDaemonset}. 
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={An example deployment with three replicas},label={lst:deployment}]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-deployment
+  namespace: default
+  labels:
+    app: example-pod-application
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: example-pod-application
+  template:
+    metadata:
+      labels:
+        app: example-pod-application
+    spec:
+      containers:
+      - name: web
+        image: docker.io/nginx:1.21.5
+        ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100M
+          requests:
+            cpu: 100M
+            memory: 100M
+\end{lstlisting}
+\end{minipage}
+\subsection{Configmaps and Secrets}
+\subsection{PersistentVolumes and PersistentVolumeClaims}
+\subsection{Services, Ingresses and NetworkPolicies}
 \section{Secure Software Supply Chains}
 \chapter{Cloud Native and Aviation}
 \chapter{A first prototype}
@@ -903,7 +1001,6 @@ spec:
 \nocite{*}
 \printbibliography{}
 \lstlistoflistings{}
-\listoftables{}
 \listoffigures
 \glsaddallunused
 \printglossary{}
