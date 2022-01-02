@@ -891,7 +891,7 @@ spec:
         cpu: 100m
         memory: 100M
       requests:
-        cpu: 100M
+        cpu: 100m
         memory: 100M
 \end{lstlisting}
 \end{minipage}
@@ -986,22 +986,123 @@ spec:
             cpu: 100m
             memory: 100M
           requests:
-            cpu: 100M
+            cpu: 100m
             memory: 100M
 \end{lstlisting}
 \end{minipage}
 \subsection{Configmaps and Secrets}
-\subsection{PersistentVolumes and PersistentVolumeClaims}
+Application requires configuration. Either the configuration has been embedded into the application or the configuration is via an external source, for instance a configuration file or a configuration service that offers a configuration via network.
+Kubernetes does support both methods. With \gls{oci} containers it is possible to embed a default configuration directly in the container image. However, this approach is very unflexible and static, because it does not allow dynamic reconfiguration.
+Dynamic reconfiguration can be achieved via setting new configuration via the network or via swapping the configuration files. The first option requires more development work, because a dynamic reconfiguration over, for example a web interface,
+has to be embedded into the application. The second option only requires to read a file. This file read can be either triggered through a file change (file watcher) or via an application restart. It also means, that the container runtime must
+implement methods to swap configuration files. One way to solve this in Docker, is via attaching volumes and placing files on the host system. These files are then mounted into the running container. Another option is to inject environment variables
+into the container. Kubernetes is not so different to Docker and solves the problem with the same methods. Nonetheless, Kubernetes adds a few security features that are missing in Docker. Similar to Docker, Kubernetes offers multiple ways to inject
+configuration data into containers. The first common approach is injecting the data via environment variables directly in the pod or deployment configuration. These environment variables can either be loaded from the \gls{api} resource definition itself
+or dynamically from another \gls{api} resource, such like configmaps or secrets. Configmaps and secrets store container configuration in the Kubernetes cluster itself. To be more precisely, the configuration data is being stored in the highly available
+key-value store called etcd. The main difference between configmaps and secrets lies in the way how Kubernetes stores the data. Configmaps are stored in plaintext and secrets are stored as base64. Data encoding via the base64 algorithm have been introduced
+in RFC4647\cite{RFC4648}. A \glsfirst{rfc} is a publication in a series of technlogical documents from the \glsfirst{ietf}\cite{WikipediaRFC}. Base64 is a data encoding algorithm for submitting data in a compact form. It does not implement encryption and
+base64 encoded data can always be decoded. Kubernetes uses base64 as placeholder algorithm, suggesting that platform administrators have to provide their own secret management service for better security. Nevertheless, Kubernetes secrets are better protected
+by the Kubernetes \gls{api} than configmaps and adding or reading secrets require more permissions in Kubernetes' \gls{api}. \autoref{lst:configmap} is a copy from \autoref{lst:pod} with one little change. \autoref{lst:configmap} introduces
+a set of two configuration variables to the pod via importing them into the container's environment through a configmap. 
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Embedding configuration data via a configmap in a pod},label={lst:configmap}]
+apiVersion: v1
+kind: Pod
+metadata:
+    name: example-pod
+    namespace: default
+    labels:
+      app: example-pod-application
+spec:
+    containers:
+    - name: web
+    image: docker.io/nginx:1.21.5
+    envFrom:
+      - configMapRef:
+          name: example-configmap
+    ports:
+    - name: web
+      containerPort: 80
+      protocol: TCP
+    resources:
+        limits:
+        cpu: 100m
+        memory: 100M
+        requests:
+        cpu: 100m
+        memory: 100M
+---
+apiVersion: v1
+data:
+  config.yaml: |
+    NGINX_HOST: example.com
+    NGINX_PORT: 80
+kind: ConfigMap
+metadata:
+  name: example-config
+  namespace: default
+\end{lstlisting}
+\end{minipage}
 \subsection{Services, Ingresses and NetworkPolicies}
+Network plays a huge role in a distributed container orchestrator. Hence, it is not a surprise that Kubernetes offers advanced network functionality. For this, Kubernetes has several \gls{api} resource types.
+In this subection, this thesis will give a short overview over the most used network related Kubernetes \gls{api} resources: Services, Ingresses and NetworkPolicies. Services provide an abstract way
+to expose deployed containers to the internal cluster network or any external network. A service can be one of four service types: clusterIP, nodePort, loadBalancer and externalName. ClusterIP services
+expose the deployments to the cluster-internal network\cite{KubernetesService} via acquiring an internal cluster IP for the service and routing all traffic through the KubeProxy to the pods behind the service.
+The nodePort service type exposes the deployment behind the service to external networks via one of 65535 ports on the Linux node. A deployment can then be reached via the node's \gls{ip} address
+and the opened node port. LoadBalancer services are able to use loadbalancers from cloud providers (if Kubernetes is running in the cloud) or from deployed load balancing services in the cluster. Projects
+like KubeVip\cite{KubeVip} or Metallb\cite{Metallb} provide this functionality via constructing \glsfirst{arp} or \glsfirst{bgp} based routing on-premise. \gls{arp} helps with discovering the hardware address (\glsfirst{mac} address)
+for an IPv4 address and has been defined in RFC826\cite{RFC826}. Metallb implements \gls{arp} via deploying, so called speaker pods, to every node. These speakers announce a load balancer \gls{ip} address
+through an \gls{arp} announcement. A gateway catches these \gls{arp} announcements and routes the traffic to the announced \gls{ip} address via their \gls{mac} address. This behavior of Metallb, is also called layer 2 mode.
+If the leader node dies, the floating \gls{ip} address will be moved to a different node\cite{MetallbLayer2}.
+In \gls{bgp} mode the Metallb speakers will establish \gls{bgp} peering sessions between each cluster node and the network router. These peering sessions are then used to advertise the \gls{ip} addresses\cite{MetallbBGP}
+The KubeProxies are responsible for load balancing the incoming traffic to all pods behind the Kubernetes service. The last Kubernetes service type is the externalName. ExternalName services are enabling Kubernetes services
+to forward to cluster-external \glsfirstplural{fqdn}. The next important Kubernetes \gls{api} resource is the ingress. An ingress is comparable to a service. The ingress handles incoming
+traffic and forwards it to a service backend. During this process the ingress is able to act like a middleware. A middleware allows filtering, restricting or modifying the incoming traffic.
+Most common usecases for ingresses are adding basic authorization for \gls{https} endpoints or playing the \gls{https} endpoint for a \gls{http} backend. In the field of aviation an ingress
+is not that important.  NetworkPolicies are important. NetworkPolicies allow isolating namespaces or pods from each other on a network level. Isolation is important for security
+and reliability reasons. For instance, a flight entertainment system should be isolated from a system to control the lights in the passenger cabin. In case of a security breach
+of the entertainment system, this would prevent the attacker from gaining access to other systems. Or in case of a misbehaving system, without an actual attacker, the isolated namespace
+would prevent the system from doing harm to other services on the cluster, for example bombarding them with network traffic and leading to performance regressions. \autoref{lst:networkPolicy}
+presents a Kubernetes networkPolicy for rejecting all incoming and outgoing traffic within the namespace default, except for \gls{dns} traffic. The networkPolicy matches
+all namespaces, but selects only pods with the label value kube-dns and the port 53 with protocol \gls{udp} in use.
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Example networkPolicy that rejects all traffic in a namespace except for DNS requests},label={lst:networkPolicy}]
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: reject-all-traffic-except-dns
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress: []
+  egress:
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+      ports:
+      - port: 53
+        protocol: UDP
+\end{lstlisting}
+\end{minipage}
 \section{Secure Software Supply Chains}
+Over the last 10 years software supply chain incidents had such an impact on the IT industry, that US president Joe Biden proclaimed an executive order for
+software supply chains security\cite{ExecutiveOrder}. Incidents, like the SolarWinds software supply chain infiltration, had a direct impact on over 18,000 customers world wide
+and multiple US government agencies. Nowadays, software is everywhere and although planes are not directly connected to the internet, their software supply chains are vulnerable.
+
 \chapter{Cloud Native and Aviation}
 \chapter{A first prototype}
 \chapter{Conclusion}
 
 \nocite{*}
-\printbibliography{}
 \lstlistoflistings{}
 \listoffigures
+\printbibliography{}
 \glsaddallunused
 \printglossary{}
 \end{document}
