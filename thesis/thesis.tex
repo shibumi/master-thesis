@@ -1091,9 +1091,35 @@ spec:
 \end{lstlisting}
 \end{minipage}
 \section{Secure Software Supply Chains}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/supplychains.pdf}
+  \caption{Supply chain overview with all possible attack points (A-H)\cite{GoogleSecurityBlog}}\label{fig:supplychains}
+\end{figure}
 Over the last 10 years software supply chain incidents had such an impact on the IT industry, that US president Joe Biden proclaimed an executive order for
 software supply chains security\cite{ExecutiveOrder}. Incidents, like the SolarWinds software supply chain infiltration, had a direct impact on over 18,000 customers world wide
 and multiple US government agencies. Nowadays, software is everywhere and although planes are not directly connected to the internet, their software supply chains are vulnerable.
+Software and Hardware supply chains are not very different. While a hardware supply chain consists of all steps from harvesting the necessary resources, to production, assembly,
+and distribution, a software supply chain consists of one or more developers writing source code, embedding other software as dependencies, testing, pushing, packaging, and distributing it. 
+Each of these steps can reveal a possible weak spot for attackers. Especially, the wide direct or indirect use of open source software, can be a challenge for companies.
+Recently, the \gls{nasa} had to announce, that their Mars helicopter \emph{Ingenuity} is not vulnerable to a security vulnerability in an open source Java logging library\cite{MarsHelicopter}.
+It is not uncommon for aviation companies to either use open source software during their development process or even in flight systems. For instance, in 2007 Airbus announced an open source toolkit for mission critical applications\cite{Topcased}.
+\autoref{fig:supplychains} visualizes each step of a supply chain and all vulnerable spots (A-H). The software supply chain starts with one or more developers writing the source code. Modern software development
+involves pushing code differences (commits) to a \gls{scm} system (A in \autoref{fig:supplychains}). Possible vulnerabilities involve an attacker in the company's network with access to the \gls{scm} system (for example Git, SVN or CVS),
+a stolen laptop with the developer's \gls{scm} credentials or code from a malicious code contributor (more common in open source software). In May 2021 researchers 
+of the University of Minnoesota managed to contribute vulnerable code to the Linux kernel \gls{scm}\cite{LinuxVulnerability}\cite{GoogleSecurityBlog}. B in \autoref{fig:supplychains} involves a direct access to the \gls{scm} system. Contrary to A, where
+access to the \gls{scm} is achieved through a developer, B involves exploiting the \gls{scm} system directly and altering the content of the code in the \gls{scm}. Another famous example for such an incident is the compromise
+of the PHP development team's \gls{scm} system in 2021\cite{PHPVulnerability}\cite{GoogleSecurityBlog}. PHP is one of the core languages behind the \gls{www} annd had a market share of 79.2\%\cite{PHPUsage}. There is no imagination needed for what could have
+happened, if this malicious code would have been distributed to all PHP systems world wide via a new version release. The same can happen with any other programming language the aviation industry relies on (C, Ada, C++\cite{LanguagesInAerospace}).
+During the next step in the software supply chain the code gets build, either via the developer or, the more common approach, via a build system. In this step, multiple attacks can happen. First of all, the code that should be build
+could get replaced during the build process. One occassion of such a scenario was, when Webmin's build system got feeded with malicious code, thus building a vulnerable Webmin release (C in \autoref{fig:supplychains})\cite{WebminVulnerability}\cite{GoogleSecurityBlog}. 
+Webmin is a web-based interface for server administration, hence it is very critical infrastructure, because it allows direct access on the server with admin privileges. Another scenario is a direct compromise of the build system, accepting correct code, but altering it
+directly on the build server or injecting additional malware into the normally harmless build. This scenario happened in the big SolarWinds hack mentioned earlier\cite{Sunspot}\cite{GoogleSecurityBlog}. Vulnerability E in \autoref{fig:supplychains} describes
+the addition of malicious software dependencies. The project's software supply chain is secure, but software dependencies have been added, that are either poorly maintained or that got victim of a software supply chain attack themselves. Some attackers,
+inject vulnerable dependencies via contributing to the software via a harmless patch with a new dependency and then after a few weeks they add a vulnerability to the dependency and they hope that the victim will update their dependencies without
+double-checking the updated dependencies. Event-Stream has been a victim of this kind of attack\cite{EventStream}\cite{GoogleSecurityBlog}. F to H in \autoref{fig:supplychains} refer to the distribution stage of a software supply chain.
+In this step, the compiled software gets distributed to users or deployed to a target system. April 2021 the company Codecov announced that their Google cloud storage account got breached into via stolen credentials\cite{Codecov}\cite{GoogleSecurityBlog}.
+Attackers used the stolen credentials to upload malicious files to the software distribution system (F in \autoref{fig:supplychains}).
 
 \chapter{Cloud Native and Aviation}
 \chapter{A first prototype}
