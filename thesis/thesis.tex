@@ -62,7 +62,7 @@ reliable, secure and cost-effective deployment in airplanes, drones or spaceship
 The master thesis is structured as follows: In the introduction, the classification of the thesis is repeated
 and put in context with the current state of the art. Then, in the second chapter, the path from a federated
 avionics architecture to an integrated system will be shown and its problems, challenges
-and ideas will get isolated. This gained information is subsequently being compared with current cloud native technologies
+and ideas will get isolated. This gained information is subsequently being compared with current Cloud-Native technologies
 and potential solutions for these subject will be proposed.
 
 \chapter*{Zusammenfassung}
@@ -76,7 +76,7 @@ zuverlässige, sichere und kostengünstige Einsatzmöglichkeiten in Flugzeugen, 
 Die Masterarbeit ist wie folgt gegliedert: In der Einleitung wird die Einordnung der Arbeit wiederholt
 und in einen Zusammenhang mit der Gegenwart gestellt. Im Zweiten Kapitel wird dann der Weg von einer föderierten
 Avionik Architektur zu einem integrierten System beleuchtet und dessen Probleme, Herausforderungen
-und Ideen isoliert. Diese gewonnenen Informationen werden nachfolgend aktuellen Cloud Native Technologien
+und Ideen isoliert. Diese gewonnenen Informationen werden nachfolgend aktuellen Cloud-Native Technologien
 gegenüber gestellt und potentielle Lösungen vorgeschlagen.
 
 \tableofcontents
@@ -410,7 +410,7 @@ security of software\cite{hoepman2007increased}. Restricting access to the sourc
 as for closed source software\cite{witten2001does}. The increased pace of patching the software underlines the increased development speed and its connected
 benefits. Many of the highlighted challenges are not new for the tech industry. The cloud industry has solved several of these challenges successfully.
 
-\chapter{Cloud-Native}
+\chapter{Cloud-Native}\label{chapter:cloud_native}
 \section{Introduction}
 Containers are not a new concept. The idea behind them goes back to systems like Solaris, FreeBSD or Linux. FreeBSD has released their first container-alike
 isolation environment, called \emph{jails}, in 2000\cite{FreeBSD4Announcement}. Jails is heavily being influenced by the chroot system call on Unix systems.
@@ -428,7 +428,7 @@ Just to name a few different areas and their sub areas on the landscape:
 \begin{description}
     \item[App Definition and Development] databases, streaming and messaging, application definition and image build, continuous integration and delivery
     \item[Orchestration and Management] scheduling and orchestration, coordination and service discovery, remote procedure call, service proxy, api gateway, service mesh
-    \item[Runtime] cloud native storage, container runtime, cloud native network
+    \item[Runtime] Cloud-Native storage, container runtime, Cloud-Native network
     \item[Provisioning] automation and configuration, container registry, security and compliance, key management
     \item[Observability] monitoring, logging tracing, chaos engineering
 \end{description}
@@ -440,7 +440,7 @@ these areas provide related functionality compared to current solutions in actua
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{figures/landscape.png}
-    \caption{Cloud Native Computing Foundation Landscape}\label{fig:landscape}
+    \caption{Cloud-Native Computing Foundation Landscape}\label{fig:landscape}
 \end{figure}
  
 \section{Docker}
@@ -1142,9 +1142,27 @@ Additionally, builds have to be parameterless and hermetic. Parameterless means 
 and that the full build process has been declared up front via immutable references\cite{SLSARequirements}. Other requirements for level four can be find in the security domain: All changes should be two person reviewed, the system must underwent continuous
 vulnerability and security checks, physical and network access must be protected and logged and only super users should be able to modify any of these security constraints\cite{SLSARequirements}.
 
-\chapter{Cloud Native and Aviation}
-Prior, this thesis gave a broad summary of cloud native core technologies like Kubernetes and Containers. Moreover, the prior chapters explored software supply chains and their potential vulnerabilities. In this chapter, this thesis
-connects both worlds and tries to propose possible solutions for future aviation systems. 
+\chapter{Cloud-Native and Aviation}
+This chapter fulfils the purpose of connecting the presented aviation system designs, challenges and opportunities from \autoref{chapter:related_work} with the first step into the Cloud-Native world in \autoref{chapter:cloud_native}.
+The big question of this part of the thesis is how a future aviation system design could look like and how emerging technologies from the Cloud-Native iniative could be beneficial for aviation. Software development in aviation is expensive,
+complex, must follow certain requirements and is splitted into two domains: Airborn software and ground-based software. Airborne software certification guidance is defined in \gls{do178c} (the successor of \gls{do178b}).
+Ground-based software is defined in \gls{do278a}. These two certification guidances are being supported by a various number of additional documents, such like:
+\begin{description}
+  \item[\gls{do330}] Software Tool Qualification Considerations
+  \item[\gls{do331}] Model-Based Development and Verification
+  \item[\gls{do332}] Object-Oriented Technology and Related Techniques
+  \item[\gls{do333}] Formal Methods
+\end{description}
+According to \gls{do178c} and \gls{do278a} software is categorized in different \glsfirst{dal}, also known as \glsfirst{idal} (a complete list can be found in \autoref{chapter:related_work}). A is the most important software level, critical to
+human life, and software level E is the least important software level with no harmful incidents. \gls{do178c} specifies for each \gls{dal} tracing requirements. Tracing refers to the strict requirement of traceable code. Every code snippet
+must be traceable to a required feature and test case\cite{brosgol2010178c}. One famous example for an existing feature in documentation, but missing feature in the code base is the Ariane 5 disaster in 1996\cite{dalal2012case}. Modern
+software development paradigms like \gls{ttd} can encourage software developers to increase the test coverage and implement only necessary features.
+
+
+
+Surprisingly, these requirements are very similar to the supply chain security efforts in Cloud-Native. \gls{slsa} assigns the same constraints to a software supply chain.
+Binary reproducibility is another important factor in the \gls{slsa} specification. While strict binary reproducibility is not being mandated by the \gls{do178c} certification, it definitely ensures deterministic builds. Deterministic builds are a strict
+requirement of \gls{do178c}.
 \chapter{A first prototype}
 \chapter{Conclusion}
 
