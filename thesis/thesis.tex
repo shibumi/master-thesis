@@ -1155,14 +1155,23 @@ Ground-based software is defined in \gls{do278a}. These two certification guidan
 \end{description}
 According to \gls{do178c} and \gls{do278a} software is categorized in different \glsfirst{dal}, also known as \glsfirst{idal} (a complete list can be found in \autoref{chapter:related_work}). A is the most important software level, critical to
 human life, and software level E is the least important software level with no harmful incidents. \gls{do178c} specifies for each \gls{dal} tracing requirements. Tracing refers to the strict requirement of traceable code. Every code snippet
-must be traceable to a required feature and test case\cite{brosgol2010178c}. One famous example for an existing feature in documentation, but missing feature in the code base is the Ariane 5 disaster in 1996\cite{dalal2012case}. Modern
-software development paradigms like \gls{ttd} can encourage software developers to increase the test coverage and implement only necessary features.
-
-
-
-Surprisingly, these requirements are very similar to the supply chain security efforts in Cloud-Native. \gls{slsa} assigns the same constraints to a software supply chain.
-Binary reproducibility is another important factor in the \gls{slsa} specification. While strict binary reproducibility is not being mandated by the \gls{do178c} certification, it definitely ensures deterministic builds. Deterministic builds are a strict
-requirement of \gls{do178c}.
+must be traceable to a required feature and test case\cite{brosgol2010178c}. One famous example for an existing feature in documentation, but missing feature in the code base, is the Ariane 5 disaster in 1996\cite{dalal2012case}. Modern
+software development paradigms like \gls{ttd} can encourage software developers to increase the test coverage and implement only necessary features\cite{panvcur2011impact}. Another important requirement in \gls{do178c} is the presence
+of deterministic build and execution behavior. Software builds and execution must be deterministic. Undeterministic behavior could lead to catastrophic events in aviation. One modern key concept supporting this requirement is binary reproducibility.
+Binary reproducibility states that there must be correspondence between the application and the source code\cite{binaryRepro}. This means that the build process must be deterministic and must produce the same binary bit by bit. Avation
+may profit from reproducible builds for their \gls{do178c} and \gls{do278a} certification processes. Reproducible builds is an important factor in the \gls{slsa} specification for secure supply chains as well. Containers help with achieving
+reproducible builds via providing an isolated and ephemeral build environment. Contrary, to Cloud-Native containers are not that popular in the aviation industry. This is astonishing, because containers have, like previous chapters have showed,
+many potential features that can help with many challenges from the aviation industry. The analysis of the different aviation system designs clearly shows a demand for cost reduction, lower development to production time,
+and \gls{tco} reductions. These challenges are very similar to the challenges from the cloud computing industry with the slight difference that aviation software must satisfy software reliability constraints as defined in \gls{do178c}.
+Existing solutions like the Wind River VxWorks 653 Platform provide an answer for some of the prior stated challenges. VxWorks 653 runs already on more than 90 aircrafts, including the Airbus A400M or the Boeing 787 Dreamliner\cite{VXWorks653}.
+The platform is \gls{do178c} compliant, supports an unmodified Linux guest operating system, real-time capabilities, a multi-core scheduler with hardware virtualization assistance and a unique \gls{ima} design layout\cite{VXWorks653Platform}.
+\gls{ima} design is being achieved via running a central proprietary module operating system in the flight cabinet. This operating system supports \gls{arinc} ports, \gls{arinc} health management and support for \gls{arinc} configuration via
+\gls{xml}. Each physical \gls{cpu} core manages one dedicated virtual machine with different operating system workloads, depending on the application's \gls{do178c} compatible software level. This allows running multiple applications
+in parallel on different \gls{cpu} cores on the same physical host system with a maximum of safety and reliability, but it also leads to a possible target for improvement. Running virtual machines is very costly and inefficient. Multiple studies
+have proven that virtual machines are significantly less performant than containers or bare-metal systems\cite{seo2014performance}\cite{felter2015updated}. 
+Other papers even actively suggest using real-time containers for large-scale mixed-criticality systems\cite{cinque2017work}. A mixed-criticality design comes very close to the VxWorks 653 platform as it is capable to run different
+workloads in different virtual machines with different certifications for different \gls{do178c} software levels as well\cite{VXWorks653}.
+% Christian, hier fügst du bitte als nächstes eine Grafik ein, die VxWorks + Kubernetes (siehe paper cinque) gegenüber stellt.
 \chapter{A first prototype}
 \chapter{Conclusion}
 
