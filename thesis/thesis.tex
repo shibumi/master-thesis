@@ -1169,9 +1169,14 @@ The platform is \gls{do178c} compliant, supports an unmodified Linux guest opera
 \gls{xml}. Each physical \gls{cpu} core manages one dedicated virtual machine with different operating system workloads, depending on the application's \gls{do178c} compatible software level. This allows running multiple applications
 in parallel on different \gls{cpu} cores on the same physical host system with a maximum of safety and reliability, but it also leads to a possible target for improvement. Running virtual machines is very costly and inefficient. Multiple studies
 have proven that virtual machines are significantly less performant than containers or bare-metal systems\cite{seo2014performance}\cite{felter2015updated}. 
-Other papers even actively suggest using real-time containers for large-scale mixed-criticality systems\cite{cinque2017work}. A mixed-criticality design comes very close to the VxWorks 653 platform as it is capable to run different
-workloads in different virtual machines with different certifications for different \gls{do178c} software levels as well\cite{VXWorks653}.
-% Christian, hier fügst du bitte als nächstes eine Grafik ein, die VxWorks + Kubernetes (siehe paper cinque) gegenüber stellt.
+Other papers even actively suggest using real-time containers for large-scale mixed-criticality systems\cite{cinque2017work}. A mixed-criticality design comes very close to the VxWorks 653 platform as the VxWorks 653 platform is capable to run different
+workloads in different virtual machines with different certifications for different \gls{do178c} software levels as well\cite{VXWorks653}. \autoref{fig:vxworks_kubernetes} presents a direct comparison between Wind River's VxWorks 653 Platform (middle),
+the proposed Kubernetes platform of this thesis (right) and previous work from Marcello Cinque and Gianmaria De Tommasi (university of Naples, Italy) with their proposed real-time Linux container engine RT-CASE (left).
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/vxworks_kubernetes.pdf}
+  \caption{Direct Comparison of the Real-Time Case Engine by Marcello Cinque and Gianmaria De Tommasi (University of Naples, Italy) with Wind River's VxWorks 653 Platform and the proposed Kubernetes Platform\cite{cinque2017work}\cite{VXWorks653}\cite{VXWorks653Platform}}\label{fig:vxworks_kubernetes}
+\end{figure}
 \chapter{A first prototype}
 \chapter{Conclusion}
 
