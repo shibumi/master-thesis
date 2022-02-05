@@ -1143,6 +1143,11 @@ and that the full build process has been declared up front via immutable referen
 vulnerability and security checks, physical and network access must be protected and logged and only super users should be able to modify any of these security constraints\cite{SLSARequirements}.
 
 \chapter{Cloud-Native and Aviation}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/vxworks_kubernetes.pdf}
+  \caption{Direct Comparison of the Real-Time Case Engine by Marcello Cinque and Gianmaria De Tommasi (University of Naples, Italy) with Wind River's VxWorks 653 platform and the proposed Kubernetes Platform\cite{cinque2017work}\cite{VXWorks653}\cite{VXWorks653Platform}}\label{fig:vxworks_kubernetes}
+\end{figure}
 This chapter fulfils the purpose of connecting the presented aviation system designs, challenges and opportunities from \autoref{chapter:related_work} with the first step into the Cloud-Native world in \autoref{chapter:cloud_native}.
 The big question of this part of the thesis is how a future aviation system design could look like and how emerging technologies from the Cloud-Native iniative could be beneficial for aviation. Software development in aviation is expensive,
 complex, must follow certain requirements and is splitted into two domains: Airborn software and ground-based software. Airborne software certification guidance is defined in \gls{do178c} (the successor of \gls{do178b}).
@@ -1178,15 +1183,22 @@ by the VxWorks module operating system, each partition only executes when their 
 The VxWorks module operating system executes on kernel level and the partitions with different criticality payloads operate in user mode. Different scheduling algorithms are supported: The standard \gls{arinc} time-preemptive scheduling, a mode-based scheduling
 algorithm and a scheduling mode called \gls{apps}\cite{VxWorksProductNote}. In time-preemptive scheduling mode partitions execute until their time slice expires\cite{VxWorksProductNote}. Time is prioritized and every process gets exactly the amount of time
 as it has been orchestrated. This behavior is different to \gls{apps}, where a priority-based scheduling mode is being used. \gls{apps} allocates a priority level to every process and processes with a higher priority are preferred. If a process with higher
-priority needs \gls{cpu} time, the lower-prioritized process must wait. During mode-based scheduling the partition schedules can get configured statically and selectively enabled dynamically on-demand\cite{VxWorksProductNote}. The left structure in \autoref{fig:vxworks_kubernetes}
-shows a diagram of the RT-CASE. The RT-CASE engine is a prototype for a multi-criticality system based on a patched real-time Linux kernel with additional libraries for scheduling LXC Linux containers for different criticality levels\cite{cinque2017work}.
-All containers run in unprivileged \glspl{cgroup} and processes are scheduled via earliest deadline first scheduling\cite{cinque2017work}. 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=1.0\textwidth]{figures/vxworks_kubernetes.pdf}
-  \caption{Direct Comparison of the Real-Time Case Engine by Marcello Cinque and Gianmaria De Tommasi (University of Naples, Italy) with Wind River's VxWorks 653 platform and the proposed Kubernetes Platform\cite{cinque2017work}\cite{VXWorks653}\cite{VXWorks653Platform}}\label{fig:vxworks_kubernetes}
-\end{figure}
-\chapter{A first prototype}
+priority needs \gls{cpu} time, the lower-prioritized process must wait. During mode-based scheduling the partition schedules can get configured statically and selectively enabled dynamically on-demand\cite{VxWorksProductNote}. 
+
+The left structure in \autoref{fig:vxworks_kubernetes} shows a diagram of RT-CASE container engine for running real-time containers in a mixed-criticality system. The RT-CASE engine is a prototype for a 
+multi-criticality system based on a patched real-time Linux kernel with additional libraries for scheduling LXC Linux containers for different criticality levels\cite{cinque2017work}. All containers run in unprivileged \glspl{cgroup} on a patched real-time Linux kernel. 
+The core component of the real-time container engine is the \gls{rtai}, an hardware abstraction layer for the Linux kernel for running real-time tasks, 
+by the Department of Aerospace Sciences and Technologies Milan, Italy\cite{RTAI}. \gls{rtai} is under active development and consists mainly of two parts: A real-time patch for the Linux kernel with hardware abstraction layer and 
+a ``broad variety of services which make realtime programmers' lifes easier''\cite{RTAIAbout}. An early implementation of the RT-CASE engine involves patching \gls{rtai} core libraries for providing container isolation for different priority levels\cite{cinque2018towards}.
+This type of isolation for priority classes is necessary for running the containers via a preemptive fixed-priority \gls{fifo} scheduler on Kernel level\cite{cinque2018towards}. Isolation is being established via remapping each real-time task onto separated time intervals.
+Remapping allows the preemptive fixed-priority \gls{fifo} scheduler to run each task in a specific order (First In, First Out). Tasks with a higher priority level are preferred. A real-time task with high priority level can interrupt any task beneath them.
+This approach also allows priority inheritance, similar to virtual machines\cite{cinque2018towards}. In 2019, Marcello Cinque conducted final tests with the RT-CASE engine. Different experiments were performed. In these experiments
+tasks with different priority levels were executed on machines with different \gls{cpu} utilization. Each task were tested for overtime and overrun situations. If a task exceeds their \gls{wcet} this is known as overtime. Overrun refers to a missed deadline.
+The paper shows that three high criticality tasks met all overtime and overrun constraints and seven medium criticality tasks violated the overtime constraint (with one exception violating the overrun constraint, this has been a task with the lowest priority)\cite{cinque2019rt}.
+This result definitely matches this thesis expectation that containers are a feasible solution for avionics. Interestingly, Marcello Cinque and Gianmaria De Dommasi mention in their article Kubernetes as solution for mapping task names, containers and configuration\cite{cinque2017work}.
+This proposed solution is illustrated on the right of \autoref{fig:vxworks_kubernetes}.
+
+\chapter{Test Scenarios}
 \chapter{Conclusion}
 
 \nocite{*}
