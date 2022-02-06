@@ -1196,7 +1196,18 @@ This approach also allows priority inheritance, similar to virtual machines\cite
 tasks with different priority levels were executed on machines with different \gls{cpu} utilization. Each task were tested for overtime and overrun situations. If a task exceeds their \gls{wcet} this is known as overtime. Overrun refers to a missed deadline.
 The paper shows that three high criticality tasks met all overtime and overrun constraints and seven medium criticality tasks violated the overtime constraint (with one exception violating the overrun constraint, this has been a task with the lowest priority)\cite{cinque2019rt}.
 This result definitely matches this thesis expectation that containers are a feasible solution for avionics. Interestingly, Marcello Cinque and Gianmaria De Dommasi mention in their article Kubernetes as solution for mapping task names, containers and configuration\cite{cinque2017work}.
-This proposed solution is illustrated on the right of \autoref{fig:vxworks_kubernetes}.
+
+Kubernetes as possible solution is illustrated on the right of \autoref{fig:vxworks_kubernetes}. The concept of using Kubernetes as distributed container orchestration platform is not so different to the RT-CASE engine with real-time containers.
+Most research regarding real-time containers on Linux form a good entrypoint for further research, because implementing a runtime engine for real-time containers, choosing the right scheduler, and establishing isolation is not enough
+for a system that must fit real world challenges. In reality, a system should be easy to use, easy to maintain, secure, and cost-effective if it aims to get attention outside of the academic world. Kubernetes has this attention already
+in the cloud computing industry. What is missing is the missing link and potential in other industries like the automation industry, in particular in fog- and edge-computing), or in the aviation industry. The combination of real-time containers and Kubernetes
+has been already topic of many researchers\cite{frankel2021real}\cite{struhar2021react}\cite{fiori2022rt}\cite{koziolek2021dynamic}, hence this thesis is not further investigating the real-time capabilities of Kubernetes. Instead, this thesis tries to focus
+on the orchestration and reliability aspects with Kubernetes and tries to discover potential benefits for the aviation industry in the Kubernetes \gls{api}. In the previous chapters, this thesis has explored various resource types
+of the Kubernetes \gls{api}. These resource types show a huge potential for aviation systems. One of the main questions is if container systems can provide the same reliability safeguards than virtual machines. Reliability safeguards
+are implemented through the backbones of containerization in Linux, namespaces and \glspl{cgroup}. Additionally, Kubernetes provides different \gls{qos} classes. \autoref{lst:deployment} depicts a deployment with three replicas and guaranteed
+\gls{cpu} and \gls{ram} allocations. Replicas can be deployed on different nodes through anti affinity rules, matching one pod (set of containers) per worker node. Through a Kubernetes service resource it is possible to loadbalance
+the traffic over all three replicas. If a replica fails, Kubernetes's kube-scheduler automatically tries to restart the pod. Failing pods can be detected either via a process exiting with a return code unequal to zero, or via a failing
+readiness or liveness probe or via custom monitoring
 
 \chapter{Test Scenarios}
 \chapter{Conclusion}
@@ -1205,6 +1216,5 @@ This proposed solution is illustrated on the right of \autoref{fig:vxworks_kuber
 \lstlistoflistings{}
 \listoffigures
 \printbibliography{}
-\glsaddallunused
 \printglossary{}
 \end{document}
