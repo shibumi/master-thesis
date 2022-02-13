@@ -1227,7 +1227,59 @@ comes with a new set of schedulers. A scheduler determines time slices for proce
 policies: \emph{SCHED\_OTHER}, \emph{SCHED\_IDLE} and \emph{SCHED\_BATCH}. On default the mainline kernel uses the \gls{cfs}\cite{man7}. The \gls{cfs} aims to maximize \gls{cpu} utilization through scheduling process fairly
 on the available processors, respecting the different scheduling policies. \emph{SCHED\_OTHER} is the default scheduler for all processes, \emph{SCHED\_BATCH} is designed for a higher throughput and \emph{SCHED\_IDLE} is
 a scheduling policy for processes with a lower priority than the weakest \emph{nice} level\cite{schedPolicies}. These scheduler policies are not suitable for a real-time operating system, hence other scheduler policies have been
-introduced via the \emph{PREEMPT\_RT} patch set. Three scheduler policies are capable of real-time scheduling: \emph{SCHED\_FIFO}, \emph{SCHED\_RR} and \emph{SCHED\_DEADLINE}.
+introduced via the \emph{PREEMPT\_RT} patch set. Three scheduler policies are capable of real-time scheduling: \emph{SCHED\_FIFO}, \emph{SCHED\_RR} and \emph{SCHED\_DEADLINE}. \autoref{fig:schedulers} visualizes the different
+scheduling policies and their mechanisms. The first time slice shows what happens if all tasks on the right have been scheduled via the \emph{SCHED\_FIFO} policy. On the right of the first task slice is a table with the tasks
+A, B and C with different lengths and real-time priorities. During the \emph{SCHED\_FIFO} policy the tasks are scheduled with respect to their real-time priority level. Task A is scheduled at first, because task A has the highest
+real-time priority. After scheduling task A there are two tasks with the same real-time priority left. In this case, the task which comes first will be served first (in this case task C before task B). The second time slice
+shows the same scenario with all tasks running under the \emph{SCHED\_RR} policy. \emph{SCHED\_RR} defines a fixed time slice for each task. Although the scheduler set the fixed time slice for each task to one, task A is served
+first again, because task A has the highest priority over all over tasks. When task A has finished, the other tasks are being run according to the fixed time slice in a round-robin cycle. The last time slice in \autoref{fig:schedulers}
+shows a mixed scheduler scenario. Linux allows setting different scheduler policies for different processes, hence it is absolutely common to run processes with different scheduling mechanisms. Running processes with different schedulers
+makes the real-time patched Linux kernel to a mixed-criticality system. On the right of the bottom time slice there are now four tasks. Task A is being scheduled with the \emph{SCHED\_FIFO} policy,  task B and task D run through
+the \emph{SCHED\_RR} policy and task C is managed by the \emph{SCHED\_DEADLINE} policy. Attentive readers will see that task C has no real-time priority. A real-time priority is in case of task C not necessary, because
+\emph{SCHED\_DEADLINE} is being implemented through the \gls{gedf} scheduling algorithm. Contrary to the other scheduling policies which are fixed-priority based, the \gls{gedf} algorithm schedules tasks with the global earliest
+deadline first. Global refers to all processor cores in a system, the word clustered would refer to a subset, partitioned would mean that each scheduler manages a single \gls{cpu} and arbitrary means any other \gls{cpu} set\cite{LWNDeadline}.
+The time slice on the right of the bottom table shows the schedule times for each task. Task C is run first, because task C is managed via the \emph{SCHED\_DEADLINE} policy. \emph{SCHED\_DEADLINE} can preempt every other task
+and runs the tasks in this priority class with their earliest deadline first. There is just one task in this priority class, thus task C runs first. When task C has finished, task A is being scheduled, because task A
+runs through the fixed-priority based \emph{SCHED\_FIFO} policy and has a higher priority class than the tasks B and D. The tasks B and C run in a round-robin cycle, because they share the same scheduling policy and the same
+real-time priority.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/schedulers.pdf}
+  \caption{Different real-time scenarios with different real-time schedulers}\label{fig:schedulers}
+\end{figure}
+Out of all real-time schedulers, the \emph{SCHED\_DEADLINE} policy is the preferred one nowadays, because fixed-priority schedulers are affected by the priority inversion problem\cite{tanenbaum2009modern}.
+The priority inversion problem occurs, when a low-priority task is blocking a resource, for instance via a semaphore or a mutex. If a high-priority task tries to access the resource, the high-priority task
+must wait due to the semaphore or mutex. The situation gets more problematic when a medium-priority task with access to a different resource gets scheduled, because now the medium-priority task has a higher
+priority than the low-priority task, hence leading to an execution of the medium-priority task. The high priority task will not get scheduled at all. There are two different solutions for this problem.
+The first solution is called priority ceiling. Priority ceiling protects a resource with a priority-gate. This means that any resource access must get through this priority-gate, where the gate checks
+if the resource-requesting task has a higher priority. If the task has higher priority than the resource-blocking task, the task will be set free for the requesting task. Another solution is priority inheritance.
+During priority inheritance the low-priority and resource-blocking task will inherit the priority from the high-priority and resource-requesting task. This behavior makes it impossible for the medium-priority
+task to interrupt the schedule and to steal the high-priority task's time slice. \autoref{fig:priority_problems} gives a good visual representation of the problem. On the top, the graphic shows the priority inversion problem.
+At the bottom is the solution for the problem: priority inheritance. The line in the upper right corner symbolizes
+the exclusive resource access by the task at the bottom with priority level 1. Between time slice 2 and 3 a task with higher priority tries to access the resource, but gets denied (visualized by a line crossing from the bottom left
+to the top right corner). At time slice 5 a task with the priority level 2 gets scheduled. The priority level is higher than priority of the resource-blocking task, hence the resource-blocking task is interrupt. The
+high-priority task still waits for execution and has to wait until time slice 12. With priority inheritance (on the bottom) the task with priority 1 will inherit the priority from the resource-requesting high-priority task.
+Due to this behavior the resource blocking task has a higher priority than the medium-priority task, thus the former low-priority task can set the resource free as fast as possible and the high-priority task can execute
+in time slice 7, leading to a faster execution time for the high-priority task. The medium-priority task gets executed after the high-priority task, instead of before like in the upper part of the picture.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/priority_problems.pdf}
+  \caption{Priority inversion problem and its solution: Priority inheritance\cite{Assmann}}\label{fig:priority_problems}
+\end{figure}
+Choosing the right scheduling mechanism solves a few of the problems with real-time operating systems. Additionally, other work is needed. The underlying hardware has to meet the right requirements for power management, preemtable hardware
+interrupts or latency improvements. This is why the real-time patched Linux kernel disables slower \gls{cpu} instruction sets\cite{Assmann}. Additionally, to the prior mentioned capabilities there are three types of isolation needed
+for avionics\cite{bredereke2017survey}:
+
+\begin{description}
+  \item[Fault Isolation] a fault in one application should not infect other applications.
+  \item[Spatial Isolation] when applications are loaded into the \gls{ram}, these applications must execute within independent address spaces.
+  \item[Temporal Isolation] an application's real-time behavior should be correct and not be interfered by other applications.
+\end{description}
+
+In addition to the spatial isolation, it would be useful to provide \gls{cpu} pinning. \gls{cpu} pinning allows giving a process isolated access to a \gls{cpu} core. This way it is possible to run applications
+with different priority or criticality levels on different processor cores, enabling stricter spatial isolation.
+
+
 \chapter{Test Scenarios}
 \chapter{Conclusion}
 
