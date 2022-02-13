@@ -1143,6 +1143,7 @@ and that the full build process has been declared up front via immutable referen
 vulnerability and security checks, physical and network access must be protected and logged and only super users should be able to modify any of these security constraints\cite{SLSARequirements}.
 
 \chapter{Cloud-Native and Aviation}
+\section{Related Projects}
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]{figures/vxworks_kubernetes.pdf}
@@ -1189,7 +1190,7 @@ The left structure in \autoref{fig:vxworks_kubernetes} shows a diagram of RT-CAS
 multi-criticality system based on a patched real-time Linux kernel with additional libraries for scheduling LXC Linux containers for different criticality levels\cite{cinque2017work}. All containers run in unprivileged \glspl{cgroup} on a patched real-time Linux kernel. 
 The core component of the real-time container engine is the \gls{rtai}, an hardware abstraction layer for the Linux kernel for running real-time tasks, 
 by the Department of Aerospace Sciences and Technologies Milan, Italy\cite{RTAI}. \gls{rtai} is under active development and consists mainly of two parts: A real-time patch for the Linux kernel with hardware abstraction layer and 
-a ``broad variety of services which make realtime programmers' lifes easier''\cite{RTAIAbout}. An early implementation of the RT-CASE engine involves patching \gls{rtai} core libraries for providing container isolation for different priority levels\cite{cinque2018towards}.
+a ``broad variety of services which make real-time programmers' lifes easier''\cite{RTAIAbout}. An early implementation of the RT-CASE engine involves patching \gls{rtai} core libraries for providing container isolation for different priority levels\cite{cinque2018towards}.
 This type of isolation for priority classes is necessary for running the containers via a preemptive fixed-priority \gls{fifo} scheduler on Kernel level\cite{cinque2018towards}. Isolation is being established via remapping each real-time task onto separated time intervals.
 Remapping allows the preemptive fixed-priority \gls{fifo} scheduler to run each task in a specific order (First In, First Out). Tasks with a higher priority level are preferred. A real-time task with high priority level can interrupt any task beneath them.
 This approach also allows priority inheritance, similar to virtual machines\cite{cinque2018towards}. In 2019, Marcello Cinque conducted final tests with the RT-CASE engine. Different experiments were performed. In these experiments
@@ -1199,16 +1200,34 @@ This result definitely matches this thesis expectation that containers are a fea
 
 Kubernetes as possible solution is illustrated on the right of \autoref{fig:vxworks_kubernetes}. The concept of using Kubernetes as distributed container orchestration platform is not so different to the RT-CASE engine with real-time containers.
 Most research regarding real-time containers on Linux form a good entrypoint for further research, because implementing a runtime engine for real-time containers, choosing the right scheduler, and establishing isolation is not enough
-for a system that must fit real world challenges. In reality, a system should be easy to use, easy to maintain, secure, and cost-effective if it aims to get attention outside of the academic world. Kubernetes has this attention already
+for a system, that must fit real world challenges. In reality, a system should be easy to use, easy to maintain, secure, and cost-effective if it aims to get attention outside of the academic world. Kubernetes has this attention already
 in the cloud computing industry. What is missing is the missing link and potential in other industries like the automation industry, in particular in fog- and edge-computing), or in the aviation industry. The combination of real-time containers and Kubernetes
-has been already topic of many researchers\cite{frankel2021real}\cite{struhar2021react}\cite{fiori2022rt}\cite{koziolek2021dynamic}, hence this thesis is not further investigating the real-time capabilities of Kubernetes. Instead, this thesis tries to focus
+has been already topic of many researchers\cite{frankel2021real}\cite{struhar2021react}\cite{fiori2022rt}\cite{koziolek2021dynamic}. This thesis tries to focus
 on the orchestration and reliability aspects with Kubernetes and tries to discover potential benefits for the aviation industry in the Kubernetes \gls{api}. In the previous chapters, this thesis has explored various resource types
-of the Kubernetes \gls{api}. These resource types show a huge potential for aviation systems. One of the main questions is if container systems can provide the same reliability safeguards than virtual machines. Reliability safeguards
-are implemented through the backbones of containerization in Linux, namespaces and \glspl{cgroup}. Additionally, Kubernetes provides different \gls{qos} classes. \autoref{lst:deployment} depicts a deployment with three replicas and guaranteed
+of the Kubernetes \gls{api}. These resource types show a huge potential for aviation systems. One of the main questions is, if container systems can provide the same reliability safeguards than virtual machines. Reliability safeguards
+are implemented through the backbones of containerization in Linux: Namespaces and \glspl{cgroup}. Additionally, Kubernetes provides different \gls{qos} classes. \autoref{lst:deployment} depicts a deployment with three replicas and guaranteed
 \gls{cpu} and \gls{ram} allocations. Replicas can be deployed on different nodes through anti affinity rules, matching one pod (set of containers) per worker node. Through a Kubernetes service resource it is possible to loadbalance
 the traffic over all three replicas. If a replica fails, Kubernetes's kube-scheduler automatically tries to restart the pod. Failing pods can be detected either via a process exiting with a return code unequal to zero, or via a failing
-readiness or liveness probe or via custom monitoring
+readiness or liveness probe or via custom monitoring.
 
+\section{Real-time capabilities in Linux}
+The Linux operating system itself is not real-time capable, hence various projects emerged to provide the Linux kernel with necessary patches for enhanced real-time capabilities. The most prominent example for such a patch set is
+the Linux Foundation's \emph{PREEMPT\_RT} project. Projects like the \gls{rtai} project from the Department of Aerospace Sciences and Technologies in Milan are extending the existing \emph{PREEMPT\_RT} project with additional libraries or smaller
+changes in the real-time Linux kernel patch set. According to the Linux Foundation an real-time operating system is a system that is able to run one or more real-time tasks, before a certain deadline\cite{RTLinux}.
+Other requirements for a real-time operating system are a fast execution speed, low latencies and most importantly deterministic behavior.
+These real-time tasks should be preemptive, this means that the task is running with a higher priority than any other task and should not be disrupted by tasks with a lower priority. The real-time Linux kernel achieves this with
+a set of features, that are missing in the mainline Linux kernel. The mainline Linux kernel comes with just 40 priority levels, or so called \emph{nice} levels, and implements a system call to set the level for a process\cite{tanenbaum2009modern}.
+System calls are the fundamental interface to the Linux kernel\cite{syscalls}.
+The level with the highest priority has the value -20, the lowest priority is +19 and the default value is 0. \emph{PREEMPT\_RT} extends the \emph{nice} levels with 100 real-time priority levels reaching from 0 to 99, while 0 is the lowest
+and 99 is the highest priority level. Real-time priority levels are preferred over the traditional \emph{nice} levels and are protected via the system call \emph{mlock}\cite{Assmann}. Mlock allows locking the used memory in the \gls{ram}, thus
+the process cannot swap memory on the hard disk (leading to a decreasing execution time)\cite{Mlock}. Critical sections are preemtable through special real-time mutexes, this does include preemptable interrupt handlers.
+An interrupt disrupts an executing process. This is bad in real-time systems, because of two reasons. First, a real-time task should be able to interrupt an interrupt and execute code in the necessary time and second
+a high priority real-time task should not get interrupted by a task with a lower priority. This makes process scheduling very important on a real-time operating system. Therefore, it is not a surprise that a real-time operating system
+comes with a new set of schedulers. A scheduler determines time slices for process for their execution. The \emph{nice} system call is part of the scheduler and the mainline Linux kernel has a small set of non-real-time capable scheduling
+policies: \emph{SCHED\_OTHER}, \emph{SCHED\_IDLE} and \emph{SCHED\_BATCH}. On default the mainline kernel uses the \gls{cfs}\cite{man7}. The \gls{cfs} aims to maximize \gls{cpu} utilization through scheduling process fairly
+on the available processors, respecting the different scheduling policies. \emph{SCHED\_OTHER} is the default scheduler for all processes, \emph{SCHED\_BATCH} is designed for a higher throughput and \emph{SCHED\_IDLE} is
+a scheduling policy for processes with a lower priority than the weakest \emph{nice} level\cite{schedPolicies}. These scheduler policies are not suitable for a real-time operating system, hence other scheduler policies have been
+introduced via the \emph{PREEMPT\_RT} patch set. Three scheduler policies are capable of real-time scheduling: \emph{SCHED\_FIFO}, \emph{SCHED\_RR} and \emph{SCHED\_DEADLINE}.
 \chapter{Test Scenarios}
 \chapter{Conclusion}
 
