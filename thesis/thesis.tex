@@ -289,11 +289,11 @@ parallelism via fast context switches. Multiple tasks are being executed consecu
 between them. This creates the impression that the system behaves parallel, but in reality it does not.
 On multi processor systems real parallelism is possible. Reserved memory refers to a fixed memory
 partition in the \gls{ram}. Reserved disk space refers to guaranteed space on a hard disk for storing
-persistent data. Network isolation and Process isolatio ensures a noisefree and secure runtime environment.
+persistent data. Network isolation and Process isolation ensures a noisefree and secure runtime environment.
 Processes should not be disturbed by other processes either on process or network level. Furthermore,
 each process has to drop privileges. Dropping privileges increases the safety and security of a service,
 because it is less likely to interfere with other processes if the process has no privileges to do so.
-\gls{qos} gives certain processes wit higher importance or risk level a higher priority. For example,
+\gls{qos} gives certain processes with higher importance or risk level a higher priority. For example,
 a system that controls the radar should have a higher priority than a system that just controls
 the ambient lights in the passenger cabin.
 Many of the above mentioned measures reveal other measures as direct dependencies. For example,
@@ -354,7 +354,7 @@ its own ports and internal IP addresses, while a namespace \emph{B} could provid
 The \emph{ipc} namespace handles everything \glsfirst{ipc} related (message queues, Linux signals like \emph{sigkill} for killing processes etc).
 For dealing with different hostnames in different namespaces the \emph{uts} namespace is being used. The last three namespaces implemented by Linux
 are the \emph{user}, \emph{cgroup} and \emph{time} namespaces. \emph{user} is responsible for \glsfirstplural{uid} and \glsfirstplural{gid}. With
-the namespace \emph{user} it is possible to different users or groups with the same \glsplural{uid} or \glsplural{gid} in different environment.
+the namespace \emph{user} it is possible to differentiate users or groups with the same \glsplural{uid} or \glsplural{gid} in different environment.
 For example, having the \emph{root} user (the administrator account on Linux systems) in different isolated environments. The user \emph{root}
 is identified by the \gls{uid} 0 and the \gls{gid} 0. Different times in isolated environments are provided by the \emph{time} namespace.
 The last namespace, the \emph{cgroup} namespace, is responsible for the \glsfirstplural{cgroup}. A \gls{cgroup} enables the system to limit
@@ -374,9 +374,8 @@ such like socket connections, system calls (syscalls) or kernel permission deleg
 deployment techniques. On the far left is the traditional setup with the hardware, an operating system running on the hardware, the applications and their shared libraries.
 The second pillar shows a type 2 hypervisor with a hardware, an operating system, shared libraries on the operating system, a hypervisor and virtual machines. Each virtual machine
 comes with their own operating system, shared libraries and the actual payload (the application with the workload). The type 1 hypervisor simplifies this setup with running
-a hypervisor directly on the hardware. In this case, the hyperviso is hypervisor and operating system at once. The container deployment comes with the hardware, an operating system 
-and its shared libraries, a container runtime for running containers and containers running
-in this container runtime. Each container can consist of different parts. A container can consist of only one static built executable or an application and shared libraries.
+a hypervisor directly on the hardware. In this case, the hypervisor is hypervisor and operating system at once. The container deployment comes with the hardware, an operating system 
+and its shared libraries and a container runtime. Each container can consist of different parts. A container can consist of only one static built executable or an application and shared libraries.
 Shared libraries minimize the size of software via sharing common methods, for instance a library for \glsfirst{rpc} or \gls{dns} lookups. When the executable has been linked dynamically,
 the executable can dynamically look up these common methods.
 Contrary to dynamic linking is static linking, where a software is being compiled with all its dependencies into one executable. Although all deployment techniques may look similar at a first glimpse,
@@ -1280,8 +1279,27 @@ Interference protection can be summarized in the following three isolation pract
   \item[Temporal Isolation] an application's real-time behavior should be correct and not be interfered by other applications.
 \end{description}
 
-Spatial isolation through \gls{ram} may be not enough, it would be useful to provide \gls{cpu} pinning, too. \gls{cpu} pinning allows giving a process isolated access to a \gls{cpu} core. This way it is possible to run applications
+Fault Isolation can be prevented fairly easy via Linux namespaces. Linux namespaces can isolate containers from each other. The \emph{pid} namespace can be used to isolate processes from each other. Using this namespace
+will prevent managing processes outside of the container. Network access can be controlled through the \emph{net} namespace, allowing an isolation of network layer through kernel network filters, for instance the \glsfirst{ebpf}.
+The \emph{ipc} namespace gives the opportunity to isolate inter-process communication. Users in containers can be controlled with the \emph{user} namespace. Via the \emph{user} namespace it is possible to map the user IDs in the container to a higher layer onto the host system. For example, a container could be given the full user ID set of 65535 user IDs including the root (the administrator user), but this set would then be remapped
+onto an extended area of user IDs on the host, such as 100000-165535. The same happens with the process IDs in the \emph{pid} namespace. The \emph{mnt} namespace is used for controlling mount points inside the container, perfect
+for data sharing, and the \emph{uts} namespace allows setting different host names for each container. Namespaces are not the only instrument for satisfying the isolation requirements of aviation.
+\glspl{cgroup} provide a hierarchical isolation and grouping of containers. A \gls{cgroup} allows to allocate, prioritize and limit memory and processor resources. However, \glspl{cgroup} are not capable of isolating applications
+in different memory pages or different processor cores. Also, spatial isolation through \gls{ram} may be not enough, it would be useful to provide \gls{cpu} pinning, too. \gls{cpu} pinning allows giving a process isolated access to a \gls{cpu} core. This way it is possible to run applications
 with different priority or criticality levels on different processor cores, enabling stricter spatial isolation. The result is a mixed-criticality system with isolated \gls{cpu} access.
+Interestingly, there are solutions for both, \gls{ram} and \gls{cpu} pinning. The Linux kernel supports memory isolation on memory page layer since version 5.14 via the new \emph{memfd\_secret} system call\cite{Linux514}.
+\emph{memfd\_secret} has its origin in research by the International Business Machines Corporation (IBM)\cite{IBMAddressSpaceIsolation}\cite{LWNSecretMemory}. According to IBM, the idea's core concept is the utilization of the hardware \gls{mmu}
+for restricting access to specific memory pages. The \gls{mmu} is responsible for translating virtual memmory addresses to physical memory addresses via dividing them into these memory pages\cite{MMU}.
+\autoref{fig:memory_pages} depicts different memory pages. Processes running in user mode have a restricted permission set. The user page table on the left in \autoref{fig:memory_pages} depict this scenario.
+Kernel space is not accessible on a user page table. Every interaction between a process in user mode and the kernel space have to go through the kernel entry area. The kernel entry area provides entrypoints
+for system calls into the Linux kernel. The right graphic shows a kernel page table with permitted access to the kernel space. With the new \emph{memfd\_secret} system call it is now possible to store memory
+directly in kernel space and therefore hidden for other processes running user mode.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/memory_pages.pdf}
+  \caption{Exlusive memory mapping in the Linux kernel with Kernel version 5.14 upwards\cite{IBMAddressSpaceIsolation}}\label{fig:memory_pages}
+\end{figure}
+The above solution allows isolating process memory from each other, but what about \gls{cpu} pinning for running processes exclusively on a dedicated \gls{cpu} isolated from other processes?
 
 
 \chapter{Test Scenarios}
