@@ -1514,7 +1514,39 @@ Limits:
 \end{lstlisting}
 \end{minipage}
 
+Next, we are going to test the \gls{cpu} limitation. Contrary to the \gls{ram} limitations, Linux will not kill the container if it exceeds its \gls{cpu} shares and quotas.
+Instead, Linux will just throttle the container and de-prioritize it. We need two terminals again. This time we are jumping in both terminals into the container via the following
+command: \emph{minikube kubectl exec deploy/hello-world -- -it -- /bin/bash}. Then, we will install two tools in the container (\emph{apt update; apt install stress htop}).
+\emph{stress} is a tool for \gls{cpu} stress tests and \emph{htop} is a process viewer running in the terminal. \emph{htop} will provide us more data than just the \gls{cpu} consumption.
+With \emph{htop} we are able to see which \gls{cpu} cores are busy. As next step, we will invoke \emph{htop} via the \emph{htop} command on one of the terminals.
+In the other terminal, we are going to execute the stress test with \gls{cpu} load tests only: \emph{stress --cpu 4}. The parameter \emph{--cpu 4} may seem odd at first, because the container
+has a limit of one \gls{cpu} core, but we are doing this on purpose. The goal of this stress test is to verify if the container will exceed its \gls{cpu} allocation and use more than 100\% \gls{cpu}.
+\autoref{fig:htop} is a copy of the output of \emph{htop}. The first important observation is that containers see all four virtual cores of the virtual machine, although the container has a \gls{cpu} quota
+of one core. The next important observation is that, although the container has access to all four cores it cannot consume all four cores completely. \autoref{fig:htop} shows clearly not all four
+cores are running on high load. The load statistic in the middle even shows an average load of 1.02, but this still throws up another question: We see four times a \gls{cpu} load of 30\%. Should not this
+be more than one virtual core? The short answer is no and there is a way to prove this. It is possible to jump on the virtual machine via the command \emph{minikube ssh}. When inside of the SSH session (Secure Shell (SSH) is a remote
+administration protocol) we can invoke two commands to verify how much \gls{cpu} the container consumes: \emph{systemd-cgls}(\autoref{fig:cgls}) and \emph{systemd-cgtop}(\autoref{fig:cgtop}). The output of \emph{systemd-cgls} tells us
+the cgroup slice name of the pod \emph{kubepods-pod75a6..} and all 8 running processes inside of it. The output of \emph{systemd-cgtop} on the other hand, shows us the number of processes (9, because 8 + 1 init process) and the
+\gls{cpu} consumption that lies under the 100\% threshold. The container gets indeed throttled.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/htop.png}
+  \caption{htop output in one container with a fixed CPU and RAM limit}\label{fig:htop}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/cgls.png}
+  \caption{Output of systemd-cgls showing our cgroup slice with the running processes in the container}\label{fig:cgls}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/cgtop.png}
+  \caption{Output of systemd-cgtop showing the real CPU consumption of the container that is under the threshold of 100\%}\label{fig:cgtop}
+\end{figure}
+
 \section{Testing network isolation}
+In this 
+
 \section{Testing the CPU manager}
 \chapter{Conclusion}
 
