@@ -1237,7 +1237,6 @@ This approach also allows priority inheritance, similar to virtual machines\cite
 tasks with different priority levels were executed on machines with different \gls{cpu} utilization. Each task were tested for overtime and overrun situations. If a task exceeds their \gls{wcet} this is known as overtime. Overrun refers to a missed deadline.
 The paper shows that three high criticality tasks met all overtime and overrun constraints and seven medium criticality tasks violated the overtime constraint (with one exception violating the overrun constraint, this has been a task with the lowest priority)\cite{cinque2019rt}.
 This result definitely matches this thesis expectation that containers are a feasible solution for avionics. Interestingly, Marcello Cinque and Gianmaria De Dommasi mention in their article Kubernetes as solution for mapping task names, containers and configuration\cite{cinque2017work}.
-
 Kubernetes as possible solution is illustrated on the right of \autoref{fig:vxworks_kubernetes}. The concept of using Kubernetes as distributed container orchestration platform is not so different to the RT-CASE engine with real-time containers.
 Most research regarding real-time containers on Linux form a good entrypoint for further research, because implementing a runtime engine for real-time containers, choosing the right scheduler, and establishing isolation is not enough
 for a system, that must fit real world challenges. In reality, a system should be easy to use, easy to maintain, secure, and cost-effective if it aims to get attention outside of the academic world. Kubernetes has this attention already
@@ -1366,8 +1365,7 @@ The pictures were created with the \emph{cpuset-visualizer} project by Connor Do
 The boot parameter \emph{isolcpus} prevents the Linux kernel from automatically scheduling processes on a set of \glspl{cpu}. With this boot parameter it is possible to deterministically isolate a \gls{cpu}
 and prevent accidentally scheduling processes on it. This feature is not yet supported in the vanilla Kubernetes orchestration engine. Intel is actively working on a new \gls{cpu} manager that makes use of the
 \emph{isolcpus} kernel parameter. Intel states in their report, that the new \gls{cpu} manager boosts the performance significantly in noisy neighbor scenarios and achieves a consistent performance
-in terms of throughput and latency\cite{IntelCPUPinning}. Noisy neighbor scenarios occur when a neighbor \gls{cpu} core has a very high utilization, leading to a performance regression of other cores.   
-
+in terms of throughput and latency\cite{IntelCPUPinning}. Noisy neighbor scenarios occur when a neighbor \gls{cpu} core has a very high utilization, leading to a performance regression of other cores.
 \begin{figure}[H]
   \centering
 \begin{tabular}{ll}
@@ -1377,9 +1375,12 @@ in terms of throughput and latency\cite{IntelCPUPinning}. Noisy neighbor scenari
 \end{tabular}
 \caption{Two Kubernetes clusters with one node each and four \glspl{cpu}. The right node has its \gls{cpu} manager policy set to \emph{static}}\label{fig:cpu-manager}
 \end{figure}
-
+Temporal isolation can be achieved by the real-time capabilities explained prior.
 
 \chapter{Test Scenarios}
+\section{Introduction to the test environment}
+\section{Deploying the first pod}
+\section{}
 \chapter{Conclusion}
 
 \nocite{*}
