@@ -42,7 +42,7 @@ E-Mail: Christian.Rebischke@tu-clausthal.de}
 \chapter*{}
 \vspace*{25mm}
 \begin{center}
-Ich widme diese Arbeit meinem Vater. Ich bin vielleicht kein guter Musiker geworden, aber ich hoffe wenigstens ein guter Ingenieur.
+Ich widme diese Arbeit meinem Vater. Ich bin vielleicht kein guter Musiker geworden, aber ich hoffe wenigstens ein guter Ingenieur geworden zu sein.
 \end{center}
 \vspace*{25mm}
 
@@ -1379,8 +1379,143 @@ Temporal isolation can be achieved by the real-time capabilities explained prior
 
 \chapter{Test Scenarios}
 \section{Introduction to the test environment}
+In this part of the thesis, we are going to setup a minimal test environment for evaluating the capabilities of the Kubernetes orchestration engine. As first step, we have to
+download Minikube. Minikube is a program written in Go for creating local test environments with Kubernetes\cite{Minikube}. Kubernetes installations via Minikube have been designed for testing purposes or local development only.
+For installing Kubernetes on the edge, in production environments, a Kubernetes distribution such like KubeEdge\cite{KubeEdge} is the better choice. Furthermore, this test scenario will not cover the Linux real-time kernel capabilities, due to space and time constraints of this thesis.
+There is plenty of research suggesting that the Linux real-time kernel is capable of running time-sensitive workloads with containers\cite{RTAI}\cite{cinque2018towards}\cite{frankel2021real}\cite{struhar2021react}\cite{fiori2022rt}\cite{RTLinux}\cite{cinque2017work}\cite{cinque2019rt}.
+Instead, this chapter of the thesis will focus on the two main isolation criterias fault isolation and spatial isolation\cite{bredereke2017survey}. As first step it is necessary to install Minikube. The Minikube website
+provides an installation guide for Minikube on different operating systems (Linux, MacOS, Windows) and different architectures (x86-64, arm64, armv7, ppc64, s390x)\cite{MinikubeDocsStart}. Depending
+on the operating system a hypervisor is needed, because some operating systems like Windows or MacOS are lacking native container support. Throughout this thesis we will always use the virtual machine hypervisor, because it let us modify the \glspl{cpu} and \gls{ram}.
+Using the virtual machine does not mean that the following scenario is not possible on hardware directly. Every step in this chapter can execute on every Kubernetes installation. This is one of the core advantages of Kubernetes.
+Kubernetes provides an abstraction layer that makes it very convenient for production and development environments. If Minikube has been installed successfully, it is possible to invoke Minikube via the command line.
+The command \emph{minikube --help} offers a first overview over Minikube's commands. Help for the subcommands will appear with the \emph{minikube <subcommand> --help} command, for instance \emph{minikube start --help}.
+Minikube provides an internal installer for the Kubectl command line tool via \emph{minikube kubectl}. Kubectl is the native Kubernetes client for interacting with the Kubernetes cluster. Minikube only installs the cluster
+and manages it infrastructure. The official Kubernetes documentation maintains a Kubectl cheat sheet\cite{KubectlCheatSheet}. \autoref{fig:minikube} depicts the test environment setup with a single Kubernete cluster.
+The single cluster is worker and master/control node at the same time.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/minikube.pdf}
+  \caption{Overview over the test environment with a host system, Minikube and Kubectl command line tools and the hypervisor running a custom Linux operating system with Kubernetes}\label{fig:minikube}
+\end{figure}
+
 \section{Deploying the first pod}
-\section{}
+In this section of the thesis we will deploy our first Kubernetes pod. A pod consists of one container with a \emph{pause} process for managing the pod and any additional payload. The \autoref{fig:pods} in an earlier
+chapter compares a pod and a container. First of all we need to start the Minikube instance via the Minikube command line tool. The following command requires a host system with more than 4 \gls{cpu} and more than 4GB
+of \gls{ram}: \emph{minikube start --cpus 4 --memory 4096 --vm}. Additional flags modify the virtual machine for the Kubernetes test environment: \emph{--vm} sets up a virtual machine with the Virtualbox hypervisor.
+\autoref{lst:first_steps_minikube} shows a few Kubectl commands and their output. The command \emph{minikube kubectl get nodes} gives an overview over the nodes in the cluster and shows a single node cluster
+with one host called \emph{minikube} its status \emph{Ready} and the roles \emph{control-plane} and \emph{master}. These two roles mean that the node is a control plane node and a worker node. For testing and local
+development purposes this is fine, but should not be used in production, because for a high-availability setup a cluster needs at least three dedicated control nodes and three dedicated worker nodes.
+The \emph{VERSION} key also shows that Minikube has installed a Kubernetes cluster with version v1.23.1. Line 4 shows a command for listing all namespaces. The \emph{kube-system} namespace consists of internal
+Kubernetes components and the default namespace is currently empty as shown in Line 11. Line 12 creates our first Kubernetes deployment with the \gls{oci} container image \emph{cpuset-visualizer}.
+In Line 15 we verify that the pod starts and after maximum one minute the pod should be ready as stated by the \emph{READY 1/1} statement in lines 20 and 21. Line 22 exposes the deployment via a Kubernetes
+service of type \emph{NodePort}. \emph{NodePorts} exposes a Kubernetes service on a free port of one of the nodes. The process in the container is listening on port 80, hence we are exposing this port
+via a node port to the host system. Line 27 shows that the \emph{NodePort} 31525 has been used. With Line 28 it is possible to automatically open a browser on localhost and port 31525. \autoref{fig:visualizer}
+shows the graphic as seen in the web browser through the command \emph{minikube service hello-world}. \autoref{fig:visualizer} shows the hostname of our pod \emph{hello-world-646d4b4bf7-fj9ff } and that
+the processes in the pod are using all four \gls{cpu} cores, because no \gls{cpu} manager has been enabled yet.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/visualizer.png}
+  \caption{Graphical output of our first hello-world deployment with cpu-visualizer software from Intel}\label{fig:visualizer}
+\end{figure}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={First steps with Minikube (the output has been slightly modified to fit on the page)},label={lst:first_steps_minikube}]
+$ minikube kubectl get nodes
+NAME       STATUS   ROLES                  VERSION
+minikube   Ready    control-plane,master   v1.23.1
+
+$ minikube kubectl get namespaces
+NAME              STATUS   AGE
+default           Active   65m
+kube-node-lease   Active   65m
+kube-public       Active   65m
+kube-system       Active   65m
+
+$ minikube kubectl get pods
+No resources found in default namespace.
+$ minikube kubectl create deploy hello-world -- \
+  --image="quay.io/connordoyle/cpuset-visualizer"
+deployment.apps/hello-world created
+
+$ minikube kubectl get pods
+NAME                              READY           
+pod/hello-world-646d4b4bf7-fj9ff  0/1  
+
+$ # wait a little
+$ minikube kubectl get pods
+NAME                              READY 
+pod/hello-world-646d4b4bf7-fj9ff  1/1           
+$ minikube kubectl expose deploy hello-world -- \
+  --type=NodePort --port=80
+service/hello-world exposed
+
+$ minikube kubectl get service
+NAME         TYPE      CLUSTER-IP     PORT(S)
+hello-world  NodePort  10.98.232.251  80:31525/TCP
+
+$ minikube service hello-world
+\end{lstlisting}
+\end{minipage}
+\section{Testing CPU and RAM allocation}
+Prior, we have deployed only one pod without \gls{cpu} or \gls{ram} allocations. This means that our last pod has been scheduled with the Kubernetes \gls{qos} class \emph{BestEffort}.
+In this section, we want to have a closer look on the resource management with \glspl{cgroup}. As first step, we are deleting our last deployments via \emph{minikube kubectl delete service hello-world} and \emph{minikube kubectl delete deploy hello-world}.
+The command \emph{minikube kubectl get pods} should now show the status \emph{Terminating} and the pod should be gone a few seconds later. Now, that we have a clean state we can
+download the \emph{kubernetes-avionics-playground} repository from Github located at: \href{https://github.com/shibumi/kubernetes-avionics-playground}{https://github.com/shibumi/kubernetes-avionics-playground}.
+The repository's \emph{README.md} file gives an overview over the project and the different test scenarios. For this section, we are interested in the second test scenario located in the directory \emph{scenario2}.
+Furthermore, we need to install a Minikube addon that offers us resource monitoring via the following command: \emph{minikube addons enable metrics-server}. With the command \emph{minikube kubectl get deploy -- -n kube-system}
+we can verify if the \emph{metrics-server} is up and running (we have to look for the \emph{READY 1/1 state}). The directory \emph{scenario2} holds a file called \emph{limit\_test.yaml}. This is the file we are looking for,
+for running our first test. In the first test, we want to verify, if the cgroup \gls{ram} management satisfies our expectations. \autoref{lst:memory_test} shows a snippet of the \emph{limit\_test.yaml} file. Line 3
+specifies the container image (a Linux Debian with release codename \emph{buster}). Line 6 states that the container should just idle and execute a sleep command. Line 8-10 specify \gls{cpu} and \gls{ram} limitations.
+Note that we are missing the \emph{requests} section in this snippet. Kubernetes will automatically set the \emph{requests} value to the same values, hence the container will have the Kubernetes \gls{qos} class \emph{Guaranteed}. 
+\emph{Guaranteed} means that the pod will be scheduled on the cluster with \gls{cpu} and \gls{ram} limitation and guaranteed resource allocation. 
+Also note, that the usual \emph{pause} container is hidden from us, because it is a Kubernetes internal container that gets deployed into every pod for management purposes.
+In this scenario, we will start the pod as defined in the definition \emph{limit\_test.yaml} on the cluster, then invoke fork bomb to provoke an out-of-memory situation and then monitor what happens.
+A fork bomb is a parent process that creates an infinite number of child processes. Every additional child process consumes a minor amount of \gls{ram} and after a certain number of child processes
+the process exceeds its memory. On a physical host system a fork bomb has a devastating effect, because the host will run into a bad state (although modern defensive mechanism exist to prevent such situations).
+The purpose of this scenario is to test if the container will be killed before it exceeds its memory limit of 500MB. First, we are going to start the deployment via \emph{minikube kubectl apply -- -f limit\_test.yaml}.
+Then, we will open a second terminal. In the first terminal, we are going to monitor the pod \gls{cpu} and \gls{ram} consumption for the default namespace via \emph{while true; do sleep 1; minikube kubectl top pods; done} 
+(this command may only work on a Linux system. On a Windows host execute \emph{minikube kubectl top pods} manually every second).
+In the second terminal, we start the forkbomb via jumping into the container's shell (\emph{minikube kubectl exec deploy/hello-world -- -it -- /bin/bash}) and executing the fork bomb via: \verb!:(){ :|: & };:!.
+In the first terminal, we should now be able to see that the memory consumption of the pod is climbing from 1MB memory consumption to over 480MB until it gets killed. Kubernetes will automatically kill the container
+and start a new fresh container within milliseconds. The new container will idle on 1MB memory consumption again. It is possible that all of this happens so fast, that the \emph{metrics-server} does not show the increasing
+memory consumption, because the \emph{metrics-server} is polling the monitoring \gls{api} only every second. The out-of-memory situation can occur within the polling, but the second terminal should report that the container
+got killed via the following message: \emph{command terminated with exit code 137}. If we lookup the Linux exit code 137, we will discover that the exit code 137 gets thrown by the out-of-memory killer on Linux. Kubernetes
+did indeed kill our process. The memory limitation works! Another way to verify if the Linux out-of-memory killer works, is via the command \emph{minikube kubectl describe pod/<pod name>}. The output of this command
+will show the last state of Kubernetes pod as shown in \autoref{lst:describe_pod}.
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Snippet of our limit\_test.yaml file with a Debian Linux container running a sleep command in a while loop and an active limit of 1 CPU and 500MB memory)},label={lst:memory_test}]
+...
+containers:
+- image: debian:buster
+  name: hello-world
+  command: ["/bin/sh"]
+  args: ["-c", "while true; do sleep 10;done"]
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 500M
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Snippet of the command \emph{minikube kubectl describe pod/<pod name>})},label={lst:describe_pod}]
+...
+State:          Running
+  Started:      Sun, 20 Feb 2022 21:40:20 +0100
+Last State:     Terminated
+  Reason:       OOMKilled
+  Exit Code:    137
+  Started:      Sun, 20 Feb 2022 21:33:48 +0100
+  Finished:     Sun, 20 Feb 2022 21:40:05 +0100
+Ready:          True
+Restart Count:  10
+Limits:
+  cpu:     1
+  memory:  500M
+...
+\end{lstlisting}
+\end{minipage}
+
+\section{Testing network isolation}
+\section{Testing the CPU manager}
 \chapter{Conclusion}
 
 \nocite{*}
