@@ -392,7 +392,7 @@ challenges in these avionic system architecture designs and possible enhancement
 process of software. It is known that a certification process in the avionic domain can be slowly and very costly, due to its
 high risk to passengers, flight personnel and civilians on the ground. Enhancing this certification process via altering the certification itself, while matching the right balance between safety
 and development speed or costs, is explicitly not topic of this research. Instead, this document tries to focus on few main questions.
-The first identified challenge is the increase of development speed in the avionic domain. Pushing innovations and new technologies fast are a major
+The first identified challenge is the increase of development speed in the avionic domain. Pushing innovations and new technologies fast is a major
 success factor. Maintaining a hardware and software stack for a traditional avionic system architecture, like the federated architecture, is a
 huge cost and time disadvantage. The developer cannot use the standard development tools and needs to adapt to the new environment. Moreover,
 buying the necessary equipment and constantly adjusting the software to this equipment are toilsome and complicated. Every hour of additional
@@ -412,7 +412,7 @@ benefits. Many of the highlighted challenges are not new for the tech industry. 
 \chapter{Cloud-Native}\label{chapter:cloud_native}
 \section{Introduction}
 Containers are not a new concept. The idea behind them goes back to systems like Solaris, FreeBSD or Linux. FreeBSD has released their first container-alike
-isolation environment, called \emph{jails}, in 2000\cite{FreeBSD4Announcement}. Jails is heavily being influenced by the chroot system call on Unix systems.
+isolation environment, called \emph{jails}, in 2000\cite{FreeBSD4Announcement}. Jails are heavily being influenced by the chroot system call on Unix systems.
 The chroot system call has been introduced with Version 7 Unix in 1979\cite{BYTE}. The concept has been there all the time so what was missing?
 Although containers were in use by system administrators the workflow was not developer friendly enough. Big companies like Google
 realized the potential of containers early and started to heavily use them in their own infrastructure, but the overall success
@@ -429,11 +429,11 @@ Just to name a few different areas and their sub areas on the landscape:
     \item[Orchestration and Management] scheduling and orchestration, coordination and service discovery, remote procedure call, service proxy, api gateway, service mesh
     \item[Runtime] Cloud-Native storage, container runtime, Cloud-Native network
     \item[Provisioning] automation and configuration, container registry, security and compliance, key management
-    \item[Observability] monitoring, logging tracing, chaos engineering
+    \item[Observability] monitoring, logging, tracing, chaos engineering
 \end{description}
 
 While some of the above areas play only a minor role in the aviation industry some areas are usable or will play a bigger role in the future.
-Especially, areas like scheduling and orchestration or container runtime are from interest for the aviation industry, because
+Especially, areas like scheduling and orchestration or container runtime are of interests for the aviation industry, because
 these areas provide related functionality compared to current solutions in actual use within the aviation industry.
 
 \begin{figure}[H]
@@ -567,7 +567,7 @@ is comparable to a directory in a filesystem. A \gls{blob} directory stores all 
 between each layer and their target platform \cite{ImageLayoutSpec}. \gls{oci} layout files work as marker and version identifier of the \gls{oci} layout. While the prior mentioned specifications
 define the structure of the \gls{oci} image, the configuration specifies the environments, entrypoints, volumes, working directory, commands that should be executed and other configuration parameters.
 The \emph{docker image inspect <docker image>} command prints a full OCI image configuration for a given image. \autoref{lst:imageConfiguration} shows the output of this command
-for the prior mentioned OCI image, built from \autoref{lst:dockerfile}. The output has been cut down to the most important parts. Clearly visible are the environment in form of environment
+for the prior mentioned OCI image, built from \autoref{lst:dockerfile}. The output has been cut down to the most important parts. Clearly visible is the environment in form of environment
 variables, the command, the working directory, an entrypoint, the Docker version, a build date and the root file system layers. If compared with \autoref{lst:dockerfile} the similarities are obvious. 
 This image configuration works as interface for the runtime specification. The \gls{cri} provides an interface for running \gls{oci} compatible images. Common implementations of the \gls{cri} are
 Docker, Containerd\cite{Containerd} or cri-o\cite{CRIO}. Containers are encoded as filesystem bundles. A filesystem bundle consists of the container configuration as specified in the \gls{oci} image specification
@@ -1287,7 +1287,14 @@ for data sharing, and the \emph{uts} namespace allows setting different host nam
 \glspl{cgroup} provide a hierarchical isolation and grouping of containers. A \gls{cgroup} allows to allocate, prioritize and limit memory and processor resources. However, \glspl{cgroup} are not capable of isolating applications
 in different memory pages or different processor cores. Also, spatial isolation through \gls{ram} may be not enough, it would be useful to provide \gls{cpu} pinning, too. \gls{cpu} pinning allows giving a process isolated access to a \gls{cpu} core. This way it is possible to run applications
 with different priority or criticality levels on different processor cores, enabling stricter spatial isolation. The result is a mixed-criticality system with isolated \gls{cpu} access.
-Interestingly, there are solutions for both, \gls{ram} and \gls{cpu} pinning. The Linux kernel supports memory isolation on memory page layer since version 5.14 via the new \emph{memfd\_secret} system call\cite{Linux514}.
+Interestingly, there are solutions for both, \gls{ram} and \gls{cpu} pinning. Kubernetes supports guaranteed memory allocation for pods in its \emph{Guaranteed} \gls{qos} class. Sadly,
+this solution does not provide real memory isolation, it mostly serves allocation purposes on \gls{numa} architectures\cite{KubernetesNUMA}. \gls{numa} refers to a computing architecture, where
+each \gls{cpu} has its own local memory for faster memory access. The counterpart for this computing architecture is called \gls{uma}, where multiple \gls{cpu} cores access the same memory.
+Due to the \gls{numa} architecture it is possible that processes are scheduled on \gls{cpu} cores and remote memory, instead of the faster local memory. The Kubernetes memory manager
+addresses this problem by pinning the process on the local memory of the scheduled \gls{cpu}. Another feature of the memory manager of Kubernetes is the support for huge memory pages (hugepages).
+Memory pages are chunks of data allocated by the \gls{cpu}, usually in 4 kilobyte chunks, because this is the limit that all \gls{cpu} vendors can handle. 
+Hugepages provide a bigger chunk size and therefore faster memory access for \glspl{cpu} supporting hugepages\cite{DebianWiki}. Kubernetes solves the memory allocation problem for \gls{numa}
+architectures, but what about the memory isolation problem? The Linux kernel supports memory isolation on memory page layer since version 5.14 via the new \emph{memfd\_secret} system call\cite{Linux514}.
 \emph{memfd\_secret} has its origin in research by the International Business Machines Corporation (IBM)\cite{IBMAddressSpaceIsolation}\cite{LWNSecretMemory}. According to IBM, the idea's core concept is the utilization of the hardware \gls{mmu}
 for restricting access to specific memory pages. The \gls{mmu} is responsible for translating virtual memmory addresses to physical memory addresses via dividing them into these memory pages\cite{MMU}.
 \autoref{fig:memory_pages} depicts different memory pages. Processes running in user mode have a restricted permission set. The user page table on the left in \autoref{fig:memory_pages} depict this scenario.
@@ -1299,7 +1306,36 @@ directly in kernel space and therefore hidden for other processes running user m
   \includegraphics[width=0.5\textwidth]{figures/memory_pages.pdf}
   \caption{Exlusive memory mapping in the Linux kernel with Kernel version 5.14 upwards\cite{IBMAddressSpaceIsolation}}\label{fig:memory_pages}
 \end{figure}
-The above solution allows isolating process memory from each other, but what about \gls{cpu} pinning for running processes exclusively on a dedicated \gls{cpu} isolated from other processes?
+The above solution allows isolating process memory from each other, but what about \gls{cpu} pinning for running processes exclusively on a dedicated \gls{cpu} isolated from other processes? Pinning a process to a single \gls{cpu}
+has multiple advantages for time-sensitive systems. First of all, if a process is not scheduled to a dedicated \gls{cpu} the normal kernel scheduler take over and schedule the process for best multi \gls{cpu} utilization
+and multi-tasking. This behavior is non-deterministic, violates the constraints for real-time systems and is completely unsuitable for latency-sensitive workloads. Scheduling a time-sensitive process on a dedicated \gls{cpu}
+fixes this problem. The container orchestration engine Kubernetes tries to address this problem with its \gls{cpu} manager, based on research at Intel\cite{KubernetesCPUManager}. Linux distributions have three kinds
+of \gls{cpu} resource control: shares, quotas and \gls{cpu} affinity. Shares refers to the share of \gls{cpu} time on a system (handled by the \emph{requests} statement in Kubernetes) 
+and quotas enable thesystem to set a hard cap of \gls{cpu} time over a period (handled by the \emph{limits} statement in Kubernetes)\cite{KubernetesCPUManager}.
+\gls{cpu} affinity pins proccesses to a given set of \glspl{cpu}. The requirement for \gls{cpu} pinning is the use of whole \gls{cpu} core numbers, for instance 1000m for 1 \gls{cpu} core.
+\autoref{lst:pod} from an earlier chapter shows an example pod definition in Kubernetes with the \gls{qos} class \emph{Guaranteed}, but a \gls{cpu} share and quota of 100m. 100m
+is not a full \gls{cpu} core, thus this pod is scheduled on a random \gls{cpu} with low utilization for archieving better overall performance. With setting the value 100m to 1000m Kubernetes would
+change the pod's policy to \emph{static} and would place the pod on its own \gls{cpu} core. If another payload is already running on this \gls{cpu}, the payload will be re-scheduled on a different \gls{cpu}.
+Hardware-unawareness is one known limitation of the \gls{cpu} manager, because Kubernetes does not know the exact
+\gls{cpu} layout. This could lead to situations, where a pod gets scheduled on a \gls{cpu} that is far more away from a time-sensitive hardware device (for example a sensor) than another free \gls{cpu}.
+\autoref{fig:cpu-manager} shows two Kubernetes clusters with one node each and four \gls{cpu} cores. On the left cluster it is clearly visible that the scheduled pod runs processes on all four \glspl{cpu}.
+The right graphic shows the same cluster, but with with the cpu manager policy set to \emph{static}. All processes inside of the pod run in the same \gls{cpu} core (visualized by the green color).
+The pictures were created with the \emph{cpuset-visualizer} project by Connor Doyle, one of the Intel researchers responsible for the cpu manager at Kubernetes\cite{CPUSetVisualizer}.
+\autoref{fig:cpu-manager} proves that allocating processes on one \gls{cpu} core is possible, but what about true isolation? For true isolation the Linux kernel offers a boot parameter called \emph{isolcpus}.
+The boot parameter \emph{isolcpus} prevents the Linux kernel from automatically scheduling processes on a set of \glspl{cpu}. With this boot parameter it is possible to deterministically isolate a \gls{cpu}
+and prevent accidentally scheduling processes on it. This feature is not yet supported in the vanilla Kubernetes orchestration engine. Intel is actively working on a new \gls{cpu} manager that makes use of the
+\emph{isolcpus} kernel parameter. Intel states in their report, that the new \gls{cpu} manager boosts the performance significantly in noisy neighbor scenarios and achieves a consistent performance
+in terms of throughput and latency\cite{IntelCPUPinning}. Noisy neighbor scenarios occur when a neighbor \gls{cpu} core has a very high utilization, leading to a performance regression of other cores.   
+
+\begin{figure}[H]
+  \centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.3]{figures/cpu_manager-disabled.png}
+&
+\includegraphics[scale=0.3]{figures/cpu-manager-enabled.png}
+\end{tabular}
+\caption{Two Kubernetes clusters with one node each and four \glspl{cpu}. The right node has its \gls{cpu} manager policy set to \emph{static}}\label{fig:cpu-manager}
+\end{figure}
 
 
 \chapter{Test Scenarios}
