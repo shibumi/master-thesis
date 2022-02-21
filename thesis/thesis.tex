@@ -180,7 +180,7 @@ the \gls{lru} will very unlikely use all of its resources. This means there will
 or network saturation. Added up over the whole federation architecture this means a huge amount of unused resource potential and unnecessary
 energy consumption that could be used for other functionality. The task-specific development of \glspl{lru} leads to problems with 
 functionality extensions, meaning that \glspl{lru} are not easily upgradable or extendable and therefore adjustable to new tasks or functionality.
-Moreover in the past the development of federated architecture components has been closed source and very vendor specific. Specifications for
+Moreover, in the past, the development of federated architecture components has been closed source and very vendor specific. Specifications for
 federated architecture components were mostly hidden behind a paywall or non disclosure agreements leading to a decreased developer efficiency
 and less market competition due to monopolism. \glspl{lru} are not easily exchangable between vendors. \autoref{fig:federated_architecture_components}
 displays the internal structure of the \gls{lru} and its interaction with other \gls{lru}. Each \gls{lru} provides its own hardware stack and hosts
@@ -203,7 +203,7 @@ step in the evolution of flight system architectures and how the disadvantages o
 \glsfirst{ima} is the direct successor of the federated avionics architecture. The idea behind \gls{ima}
 is to consolidate the distributed hardware in one central flight cabinet. A Flight cabinet is very similar
 to a rack in a datacenter. They can host multiple processing units, each comes with its own hardware stack
-consisting of a \gls{cpu}, \gls{ram}, disk space and connectors for input and output\cite{prisaznuk1992integrated}. These servers are then plugged-in 
+consisting of a \gls{cpu}, \gls{ram}, disk space and connectors for input and output\cite{prisaznuk1992integrated}. These servers are then plugged
 into the flight cabinet. Each server can host more than one avionic function and each function is allocated on partitions.
 Partitions can be created on different ways and has been standardized in \gls{arinc653}\cite{vanderleest2010arinc}. The most common approach
 is the use of a hypervisor (how this is implemented is being discussed in \autoref{section:workload_partitioning_strategies}). 
@@ -242,7 +242,7 @@ The common processor allows the developer to focus on the hosted avionic functio
 flight software. Separating software and hardware is a benefit during the certification process, because the certifying authority can certify
 software and hardware separately. This has just another huge impact on cost and time savings. Additionally, upgrading the hosted function
 becomes a lot easier, because of the hardware and software separation and less expensive hardware, due to standardized and more common
-processing units. Another important benefit can be achieved via adopting the idea of open software and hardware. An open system architecture
+processing units. Another important benefit can be achieved via adopting the idea of open, software and hardware. An open system architecture
 with open standards can lead to a more competitive market due to industry-wide participation and exchangeability between hardware or
 software applications. This way development and hardware costs can be reduced, because development cost gets distributed among all contributing
 companies and mass production of standardized and open hardware shrinks marginal costs\cite{black2006open}. Moreover, the decoupling between hardware and software
@@ -284,11 +284,11 @@ infrastructure (server, storages, networking). These three layers can be mirrore
     \item \gls{iaas}: flight cabinets, remote data concentrators, the plane's data bus
 \end{itemize}
 Via separating each of these layers the aviation industry gains stronger standardization, more reliability and more effective
-development workflows. Instead of selling one big monolithic system, separating makes it possible to develop products
+development workflows. Instead of selling one big monolithic system, separation makes it possible to develop products
 for specific layers and interconnect them with the other layer via standards. These standards can be, as shown in \autoref{section:integrated_modular_avionics},
 drivers for competition and exchangeability. Another aspect of cloud computing is the free and configurable allocation of applications\cite{li2012avionics}.
 Dedicated storage, processor or sensor clusters would allow on-demand access from applications. Nevertheless it is a challenge to make this access reliable
-and safe. Furthermore using standardized software may allow
+and safe. Furthermore, using standardized software may allow
 interconnection between the plane and ground units (for example: real-time weather data transmitted from the ground to the plane).
 This is partly comparable to the tactical data link of military units that get real-time radar data on their \gls{hsd}.
 
@@ -312,7 +312,7 @@ in the \gls{arp4754} as follows\cite{arp4754a2010guidelines}:
 \end{description}
 
 Due to these different risk levels it becomes important to isolate systems from each other. A system
-with a low risk level should never have direct nor indirect impact on another system. In conclusion
+with a low risk level should never have direct nor indirect impact on another system. In conclusion,
 the following measures are necessary to satisfy the safety and security requirements in planes:
 
 \begin{itemize}
@@ -326,12 +326,12 @@ the following measures are necessary to satisfy the safety and security requirem
 \end{itemize}
 
 Reserved \gls{cpu} time means that every task has a strict time partition to work with.
-Normally, cpu time is being shared on single processor systems. The operating systems simulates
-parallelism via fast context switches. Multiple tasks are being executed consecutively switching
-between them. This creates the impression that the system behaves parallel, but in reality it does not.
+Normally, \gls{cpu} time is being shared on single processor systems. The operating systems simulates
+parallelism via fast context switches. Multiple tasks are being executed consecutively. 
+This creates the impression that the system behaves parallel, but in reality it does not.
 On multi processor systems real parallelism is possible. Reserved memory refers to a fixed memory
 partition in the \gls{ram}. Reserved disk space refers to guaranteed space on a hard disk for storing
-persistent data. Network isolation and Process isolation ensures a noisefree and secure runtime environment.
+persistent data. Network isolation and Process isolation ensures a noise free and secure runtime environment.
 Processes should not be disturbed by other processes either on process or network level. Furthermore,
 each process has to drop privileges. Dropping privileges increases the safety and security of a service,
 because it is less likely to interfere with other processes if the process has no privileges to do so.
@@ -340,7 +340,7 @@ a system that controls the radar should have a higher priority than a system tha
 the ambient lights in the passenger cabin.
 Many of the above mentioned measures reveal other measures as direct dependencies. For example,
 it is not possible to do proper \gls{qos} without an observable system that gets properly monitored.
-Another example is the importance of security. On the first view security might be untangled of safety,
+Another example is the importance of security. On the first view, security might be untangled of safety,
 but in reality safety and security have a direct effect on each other. If the system is insecure it cannot
 be safe and reliable, because every possible security incident could undermine all reliability promises.
 The same applies to safety. An unsafe and unstable system cannot be considered secure, because these
@@ -377,7 +377,7 @@ a single system call called \emph{setns()}\cite{mannamespaces}. The Linux namesp
     \item[pid] responsible for processes
     \item[net] responsible for the network stack
     \item[ipc] responsible for \gls{ipc}
-    \item[uts] responsible for \gls{uts}
+    \item[uts] responsible for \gls{uts} and setting hostname information
     \item[user] responsible for \glspl{uid}
     \item[cgroup] responsible for \glspl{cgroup}
     \item[time] responsible for time  
