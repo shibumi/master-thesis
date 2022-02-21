@@ -29,6 +29,8 @@
     breaklines=true,
 }
 \setcounter{biburllcpenalty}{9001}
+\setcounter{biburlucpenalty}{9001}
+\setcounter{biburlnumpenalty}{9001}
 \makeglossaries{}
 \input{glossaries.tex}
 \title{From the Cloud to the Clouds: Taking Integrated Modular Avionics on a New Level with Cloud-Native Technologies}
@@ -1182,7 +1184,7 @@ Additionally, builds have to be parameterless and hermetic. Parameterless means 
 and that the full build process has been declared up front via immutable references\cite{SLSARequirements}. Other requirements for level four can be find in the security domain: All changes should be two person reviewed, the system must underwent continuous
 vulnerability and security checks, physical and network access must be protected and logged and only super users should be able to modify any of these security constraints\cite{SLSARequirements}.
 
-\chapter{Cloud-Native and Aviation}
+\chapter{Cloud-Native and Aviation}\label{chapter:cloud_native_and_aviation}
 \section{Related Projects}
 \begin{figure}[H]
   \centering
@@ -1377,7 +1379,7 @@ in terms of throughput and latency\cite{IntelCPUPinning}. Noisy neighbor scenari
 \end{figure}
 Temporal isolation can be achieved by the real-time capabilities explained prior.
 
-\chapter{Test Scenarios}
+\chapter{Test Scenarios}\label{chapter:test_scenarios}
 \section{Introduction to the test environment}
 In this part of the thesis, we are going to setup a minimal test environment for evaluating the capabilities of the Kubernetes orchestration engine. As first step, we have to
 download Minikube. Minikube is a program written in Go for creating local test environments with Kubernetes\cite{Minikube}. Kubernetes installations via Minikube have been designed for testing purposes or local development only.
@@ -1543,12 +1545,120 @@ the cgroup slice name of the pod \emph{kubepods-pod75a6..} and all 8 running pro
   \includegraphics[width=1.0\textwidth]{figures/cgtop.png}
   \caption{Output of systemd-cgtop showing the real CPU consumption of the container that is under the threshold of 100\%}\label{fig:cgtop}
 \end{figure}
-
-\section{Testing network isolation}
-In this 
+As last test for this section, we try to deploy another payload on our cluster. This time, the \gls{cpu} and \gls{ram} limits will be much higher than the remaining resources.
+On deployment with \gls{qos} class \emph{Guaranteed} runs already on the cluster. What will happen if we try to schedule another deployment with 4 \glspl{cpu} and 8000MB memory?
+The \emph{kubernetes-avionics-playground} has another deployment file named \emph{too\_much.yaml}. When deploying it (\emph{minikube kubectl apply -- -f too\_much.yaml})
+and verify the deployment (\emph{minikube kubectl get pods}) it becomes visible that the status is on \emph{Pending} and 0/1 containers are ready. \emph{minikube kubectl get events}
+reports that scheduling failed, because of insufficient \gls{cpu} and insufficient memory. It did work! Kubernetes prevented the deployment, because of insufficient resources.
 
 \section{Testing the CPU manager}
+Prior this chapter had a look on spatial isolation with a high focus on resource allocation. In this section, we will investigate the spatial isolation with focus on \gls{cpu} isolation.
+For this scenario, we have to delete the minikube instance (\emph{minikube delete}) and restart it with the following parameters: \\\emph{minikube start --cpus 4 --memory 4096 --vm} \\\emph{--extra-config=kubelet.cpu-manager-policy=static} 
+\\\emph{--extra-config=kubelet.kube-reserved=cpu=1} \\\emph{--extra-config=kubelet.system-reserved=cpu=1}.\\
+There are three new flags behind the command. These flags are configuration flags for the Kubelet, the Kubelet is the Kubernetes agent running on every Kubernetes control and worker node. With the first flag
+we set the \gls{cpu} manager policy to \emph{static}. The other two remaining flags are needed, because when the \gls{cpu} manager's policy is set to \emph{static} we have to configure a guaranteed
+set of \gls{cpu} and memory for the Kubernetes components. Now, we replay the commands from the previous section. First, we deploy the \emph{limit\_test.yaml}, then we install the stress testing tool and \emph{htop} again.
+Second, we invoke the stress testing tool and \emph{htop}. Additionally, we will deploy the \emph{cpu-visualizer} from the first section of this chapter: \emph{minikube kubectl -- -f cpu\_visualizer.yaml}.
+\autoref{fig:htop_cpu_manager} and \autoref{fig:scenario3} show the results of the third scenario. This time, \emph{htop} shows 100\% consumption on only one \gls{cpu} core with a stress test over 4 cores.
+The \gls{cpu} visualizer confirms the \emph{htop} output.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/htop_cpu_manager.png}
+  \caption{htop output with CPU manager policy set to static}\label{fig:htop_cpu_manager}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/scenario3.png}
+  \caption{CPU visualizer output showing only one CPU is in use by the container}\label{fig:scenario3}
+\end{figure}
+
+\section{Testing network isolation}
+This short section will cover network isolation. Network isolation helps with fault isolation, because it prevents other services from affecting services over the network, for example accidentally creating too much network traffic.
+The directory \emph{scenario4} covers this section in the \emph{kubernetes-avionics-playground} repository. First, we have to delete the current minikube instance again \emph{minikube delete} and re-create it
+with a custom \glsfirst{cni} plugin called \emph{calico}: \emph{minikube start --cpus 4 --memory 4096 --vm --cni=calico}. \emph{Calico} is needed, because the default KubeProxy components provides no network isolation
+in form of network policies. With the new cluster up and running we can deploy one test server container running the web server \emph{Nginx} and one client container running the \gls{http} tool \emph{cURL}.
+\emph{cURL} allows us to invoke \gls{http} requests on the command line. \emph{minikube kubectl apply -- -f deployments.yaml} starts both deployments. Next, we verify that the client container can reach the server
+container via executing \emph{cURL}: \emph{minikube kubectl exec deploy/client -- -- curl -I --silent 10.244.120.67} (the server container's \gls{ip} address is different on every cluster. The command \emph{minikube kubectl get pods -- -o wide} prints the \gls{ip} addresses for all pods).
+\autoref{lst:curlsuccess} depicts our success. The \gls{http} request has been sent successfully and the server container answered it, hence there is no network isolation in place yet. In the next step, we activate a network policy as described in \autoref{lst:netpol}.
+Line 6 has an empty pod selector, this means that the network policy will apply to all pods. Line 7-9 describe the policy types: ingress and egress. Line 10 sets the ingress policy to an empty list, blocking all incoming traffic.
+Lines 11-19 defines an egress rule for all namespaces to the pod that matches the labels \emph{k8s-app: kube-dns} on port 53 and protocol \gls{udp}, allowing only \gls{dns} traffic. \autoref{curlfailure} reports the result
+of the same command with network policies enabled, showing that the command fails, because the connection is running into a timeout. The network isolation works.
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Snippet of the command \emph{minikube kubectl exec deploy/client -- -- curl -I --silent 10.244.120.67} with network policies disabled},label={lst:curlsuccess}]
+HTTP/1.1 200 OK
+Server: nginx/1.21.6
+Date: Sun, 20 Feb 2022 23:21:44 GMT
+Content-Type: text/html
+Content-Length: 615
+Last-Modified: Tue, 25 Jan 2022 15:03:52 GMT
+Connection: keep-alive
+ETag: "61f01158-267"
+Accept-Ranges: bytes
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Snippet of the command \emph{minikube kubectl exec deploy/client -- -- curl -I --silent 10.244.120.67} with network policies enabled},label={lst:curlfailure}]
+curl: (7) Failed connect to 10.244.120.67:80
+Connection timed out
+command terminated with exit code 7
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Kubernetes network policy that only allows DNS traffic},label={lst:netpol}]
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: prevent-all-traffic-except-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+\end{lstlisting}
+\end{minipage}
+
 \chapter{Conclusion}
+\section{Summary}
+This thesis has started with the question if it is possible to apply state of the art practices from the Cloud-Native ecosystem to the aviation industry. \autoref{chapter:related_work}
+gave a detailed introduction to the requirements of software systems running in the aviation industry. It started with an introduction to federated avionics and its problems with increasing
+cable lengths and energy consumption. Although, federation avionics has been proposed as possible solution for the problems of federated avionics, some problems remain and there is still
+room for further improvement through new technologies. Heavy virtual machine payloads turned out to be a good solution for isolation, but they require hardware virtualization and unnecessary layers
+of complexity. \autoref{chapter:cloud_native} brought the necessary overview over modern containers, their orchestration, their standards, and software supply chain security. It provides a detailed
+view on the Cloud-Native ecosystem and highlights various Kubernetes \gls{api} functionalities. Furthermore, it offers an introduction to container interfaces and standards such as \gls{oci}.
+\autoref{chapter:cloud_native_and_aviation} connected both domains with each other, featured important projects in the real-time Linux domain, and proposed solutions for separation kernel implementations through containers. 
+Intensive research and digging through many research papers, brought papers to attention that offer high value for the aviation industry, because they tackle current problems of the industry and suggests working and implementable
+solutions. The section containers and seperation kernels addressed the requirements of separation kernels and their isolation practices and connects them with container technologies that are up to date and either
+work in progress or finished just a few months ago. \autoref{chapter:test_scenarios} demonstrated Cloud-Native solutions for certain scenarios with focus on spatial and fault isolation. Sadly, this chapter provided
+no more detailed work in real-time containers and modern Linux kernel features like \emph{memfd\_secret} or the new \gls{cpu} manager by Intel. Altogether, this thesis provides the foundation for future research
+in this area and a good entrypoint for the search for more connection points between Cloud-Native and avionics.
+
+\section{Limitations}
+Even though this thesis provides a detailed overview over Kubernetes, avionics and modern container technologies. This thesis has a few weak spots. First of all, this thesis is far away from presenting
+a full overview to Kubernetes. Kubernetes is much larger than introduced in this thesis and grows rapidly due to massive contributions to big global players like Google, Intel, IBM, Microsoft or Amazon.
+Kubernetes offers much more \gls{api} functionality than described in this thesis and has numerous sub projects extending Kubernetes or extending the Cloud-Native ecosystem in general. \autoref{fig:landscape}
+gives a feeling for the countless number of services and software projects related to this technology. It is possible that this thesis will not be up to date in the next years, due to Kubernetes' fast development
+cycles. Secondly, this thesis is missing depth in certain areas. Providing the necessary depth would have smashed the time and place constraints of this thesis, but this also means that there is plenty of more research
+possible and more to discover and learn. Especially interesting are the real-time capabilities of the Linux kernel in combination with containers. Companies like Intel seem to have an increasing interest in this area
+and are addressing similar problems to the isolation problems in the avionic industry.
+
+\section{Implications}
+The implications of this work can be summarized as follows. There is indeed an overlapping between avionics and the cloud computing industry. Containers have proven to be a good next step for running payloads
+in clouds and beyond. Although virtual machines are superior in isolation, kernel features in modern operating systems are catching up. Many of the discussed kernel features in this thesis have been under the radar
+for years and many other features are so new that the aviation industry may not discover them for the next few years. This thesis wants to change this with providing a good foundation for further research, development
+and entrypoints to a fully new ecosystem. The Wind River company understands this challenges and chances and seem to act aggressively in this market. Other companies have to follow this trend and have to evaluate
+containers for their time-sensitive application areas. Containers may be not the ideal solution for all \gls{do178c} \gls{idal} levels, but they can play a big part in future avionics.
+
 
 \nocite{*}
 \lstlistoflistings{}
