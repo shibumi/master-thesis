@@ -1207,7 +1207,7 @@ software development paradigms like \gls{ttd} can encourage software developers 
 of deterministic build and execution behavior. Software builds and execution must be deterministic. Undeterministic behavior could lead to catastrophic events in aviation. One modern key concept supporting this requirement is binary reproducibility.
 Binary reproducibility states that there must be correspondence between the application and the source code\cite{binaryRepro}. This means that the build process must be deterministic and must produce the same binary bit by bit. Avation
 may profit from reproducible builds for their \gls{do178c} and \gls{do278a} certification processes. Reproducible builds is an important factor in the \gls{slsa} specification for secure supply chains as well. Containers help with achieving
-reproducible builds via providing an isolated and ephemeral build environment. Contrary, to Cloud-Native containers are not that popular in the aviation industry. This is astonishing, because containers have, like previous chapters have showed,
+reproducible builds via providing an isolated and ephemeral build environment. Interestingly, Cloud-Native containers are not that popular in the aviation industry. This is astonishing, because containers have, like previous chapters have showed,
 many potential features that can help with many challenges from the aviation industry. The analysis of the different aviation system designs clearly shows a demand for cost reduction, lower development to production time,
 and \gls{tco} reductions. These challenges are very similar to the challenges from the cloud computing industry with the slight difference that aviation software must satisfy software reliability constraints as defined in \gls{do178c}.
 Existing solutions like the Wind River VxWorks 653 platform provide an answer for some of the prior stated challenges. VxWorks 653 runs already on more than 90 aircrafts, including the Airbus A400M or the Boeing 787 Dreamliner\cite{VXWorks653}.
@@ -1227,7 +1227,7 @@ algorithm and a scheduling mode called \gls{apps}\cite{VxWorksProductNote}. In t
 as it has been orchestrated. This behavior is different to \gls{apps}, where a priority-based scheduling mode is being used. \gls{apps} allocates a priority level to every process and processes with a higher priority are preferred. If a process with higher
 priority needs \gls{cpu} time, the lower-prioritized process must wait. During mode-based scheduling the partition schedules can get configured statically and selectively enabled dynamically on-demand\cite{VxWorksProductNote}. 
 
-The left structure in \autoref{fig:vxworks_kubernetes} shows a diagram of RT-CASE container engine for running real-time containers in a mixed-criticality system. The RT-CASE engine is a prototype for a 
+The left structure in \autoref{fig:vxworks_kubernetes} shows a diagram of the RT-CASE container engine for running real-time containers in a mixed-criticality system. The RT-CASE engine is a prototype for a 
 multi-criticality system based on a patched real-time Linux kernel with additional libraries for scheduling LXC Linux containers for different criticality levels\cite{cinque2017work}. All containers run in unprivileged \glspl{cgroup} on a patched real-time Linux kernel. 
 The core component of the real-time container engine is the \gls{rtai}, an hardware abstraction layer for the Linux kernel for running real-time tasks, 
 by the Department of Aerospace Sciences and Technologies Milan, Italy\cite{RTAI}. \gls{rtai} is under active development and consists mainly of two parts: A real-time patch for the Linux kernel with hardware abstraction layer and 
@@ -1241,7 +1241,7 @@ This result definitely matches this thesis expectation that containers are a fea
 Kubernetes as possible solution is illustrated on the right of \autoref{fig:vxworks_kubernetes}. The concept of using Kubernetes as distributed container orchestration platform is not so different to the RT-CASE engine with real-time containers.
 Most research regarding real-time containers on Linux form a good entrypoint for further research, because implementing a runtime engine for real-time containers, choosing the right scheduler, and establishing isolation is not enough
 for a system, that must fit real world challenges. In reality, a system should be easy to use, easy to maintain, secure, and cost-effective if it aims to get attention outside of the academic world. Kubernetes has this attention already
-in the cloud computing industry. What is missing is the missing link and potential in other industries like the automation industry, in particular in fog- and edge-computing), or in the aviation industry. The combination of real-time containers and Kubernetes
+in the cloud computing industry. What is missing is the missing link and potential in other industries like the automation industry, in particular in fog- and edge-computing, or in the aviation industry. The combination of real-time containers and Kubernetes
 has been already topic of many researchers\cite{frankel2021real}\cite{struhar2021react}\cite{fiori2022rt}\cite{koziolek2021dynamic}. This thesis tries to focus
 on the orchestration and reliability aspects with Kubernetes and tries to discover potential benefits for the aviation industry in the Kubernetes \gls{api}. In the previous chapters, this thesis has explored various resource types
 of the Kubernetes \gls{api}. These resource types show a huge potential for aviation systems. One of the main questions is, if container systems can provide the same reliability safeguards than virtual machines. Reliability safeguards
@@ -1271,7 +1271,7 @@ introduced via the \emph{PREEMPT\_RT} patch set. Three scheduler policies are ca
 scheduling policies and their mechanisms. The first time slice shows what happens if all tasks on the right have been scheduled via the \emph{SCHED\_FIFO} policy. On the right of the first task slice is a table with the tasks
 A, B and C with different lengths and real-time priorities. During the \emph{SCHED\_FIFO} policy the tasks are scheduled with respect to their real-time priority level. Task A is scheduled at first, because task A has the highest
 real-time priority. After scheduling task A there are two tasks with the same real-time priority left. In this case, the task which comes first will be served first (in this case task C before task B). The second time slice
-shows the same scenario with all tasks running under the \emph{SCHED\_RR} policy. \emph{SCHED\_RR} defines a fixed time slice for each task. Although the scheduler set the fixed time slice for each task to one, task A is served
+shows the same scenario with all tasks running under the \emph{SCHED\_RR} policy. \emph{SCHED\_RR} defines a fixed time slice for each task. Although the scheduler sets the fixed time slice for each task to one, task A is served
 first again, because task A has the highest priority over all over tasks. When task A has finished, the other tasks are being run according to the fixed time slice in a round-robin cycle. The last time slice in \autoref{fig:schedulers}
 shows a mixed scheduler scenario. Linux allows setting different scheduler policies for different processes, hence it is absolutely common to run processes with different scheduling mechanisms. Running processes with different schedulers
 makes the real-time patched Linux kernel to a mixed-criticality system. On the right of the bottom time slice there are now four tasks. Task A is being scheduled with the \emph{SCHED\_FIFO} policy,  task B and task D run through
@@ -1338,21 +1338,21 @@ Hugepages provide a bigger chunk size and therefore faster memory access for \gl
 architectures, but what about the memory isolation problem? The Linux kernel supports memory isolation on memory page layer since version 5.14 via the new \emph{memfd\_secret} system call\cite{Linux514}.
 \emph{memfd\_secret} has its origin in research by the International Business Machines Corporation (IBM)\cite{IBMAddressSpaceIsolation}\cite{LWNSecretMemory}. According to IBM, the idea's core concept is the utilization of the hardware \gls{mmu}
 for restricting access to specific memory pages. The \gls{mmu} is responsible for translating virtual memmory addresses to physical memory addresses via dividing them into these memory pages\cite{MMU}.
-\autoref{fig:memory_pages} depicts different memory pages. Processes running in user mode have a restricted permission set. The user page table on the left in \autoref{fig:memory_pages} depict this scenario.
+\autoref{fig:memory_pages} depicts different memory pages. Processes running in user mode have a restricted permission set. The user page table on the left in \autoref{fig:memory_pages} depicts this scenario.
 Kernel space is not accessible on a user page table. Every interaction between a process in user mode and the kernel space have to go through the kernel entry area. The kernel entry area provides entrypoints
 for system calls into the Linux kernel. The right graphic shows a kernel page table with permitted access to the kernel space. With the new \emph{memfd\_secret} system call it is now possible to store memory
-directly in kernel space and therefore hidden for other processes running user mode.
+directly in kernel space and therefore hidden for other processes running in user mode.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.5\textwidth]{figures/memory_pages.pdf}
   \caption{Exlusive memory mapping in the Linux kernel with Kernel version 5.14 upwards\cite{IBMAddressSpaceIsolation}}\label{fig:memory_pages}
 \end{figure}
 The above solution allows isolating process memory from each other, but what about \gls{cpu} pinning for running processes exclusively on a dedicated \gls{cpu} isolated from other processes? Pinning a process to a single \gls{cpu}
-has multiple advantages for time-sensitive systems. First of all, if a process is not scheduled to a dedicated \gls{cpu} the normal kernel scheduler take over and schedule the process for best multi \gls{cpu} utilization
+has multiple advantages for time-sensitive systems. First of all, if a process is not scheduled to a dedicated \gls{cpu} the normal kernel scheduler takes over and schedules the process for best multi \gls{cpu} utilization
 and multi-tasking. This behavior is non-deterministic, violates the constraints for real-time systems and is completely unsuitable for latency-sensitive workloads. Scheduling a time-sensitive process on a dedicated \gls{cpu}
 fixes this problem. The container orchestration engine Kubernetes tries to address this problem with its \gls{cpu} manager, based on research at Intel\cite{KubernetesCPUManager}. Linux distributions have three kinds
 of \gls{cpu} resource control: shares, quotas and \gls{cpu} affinity. Shares refers to the share of \gls{cpu} time on a system (handled by the \emph{requests} statement in Kubernetes) 
-and quotas enable thesystem to set a hard cap of \gls{cpu} time over a period (handled by the \emph{limits} statement in Kubernetes)\cite{KubernetesCPUManager}.
+and quotas enable the system to set a hard cap of \gls{cpu} time over a period (handled by the \emph{limits} statement in Kubernetes)\cite{KubernetesCPUManager}.
 \gls{cpu} affinity pins proccesses to a given set of \glspl{cpu}. The requirement for \gls{cpu} pinning is the use of whole \gls{cpu} core numbers, for instance 1000m for 1 \gls{cpu} core.
 \autoref{lst:pod} from an earlier chapter shows an example pod definition in Kubernetes with the \gls{qos} class \emph{Guaranteed}, but a \gls{cpu} share and quota of 100m. 100m
 is not a full \gls{cpu} core, thus this pod is scheduled on a random \gls{cpu} with low utilization for archieving better overall performance. With setting the value 100m to 1000m Kubernetes would
@@ -1469,7 +1469,7 @@ specifies the container image (a Linux Debian with release codename \emph{buster
 Note that we are missing the \emph{requests} section in this snippet. Kubernetes will automatically set the \emph{requests} value to the same values, hence the container will have the Kubernetes \gls{qos} class \emph{Guaranteed}. 
 \emph{Guaranteed} means that the pod will be scheduled on the cluster with \gls{cpu} and \gls{ram} limitation and guaranteed resource allocation. 
 Also note, that the usual \emph{pause} container is hidden from us, because it is a Kubernetes internal container that gets deployed into every pod for management purposes.
-In this scenario, we will start the pod as defined in the definition \emph{limit\_test.yaml} on the cluster, then invoke fork bomb to provoke an out-of-memory situation and then monitor what happens.
+In this scenario, we will start the pod as defined in the definition \emph{limit\_test.yaml} on the cluster, then invoke a fork bomb to provoke an out-of-memory situation and then monitor what happens.
 A fork bomb is a parent process that creates an infinite number of child processes. Every additional child process consumes a minor amount of \gls{ram} and after a certain number of child processes
 the process exceeds its memory. On a physical host system a fork bomb has a devastating effect, because the host will run into a bad state (although modern defensive mechanism exist to prevent such situations).
 The purpose of this scenario is to test if the container will be killed before it exceeds its memory limit of 500MB. First, we are going to start the deployment via \emph{minikube kubectl apply -- -f limit\_test.yaml}.
@@ -1545,7 +1545,7 @@ the cgroup slice name of the pod \emph{kubepods-pod75a6..} and all 8 running pro
   \caption{Output of systemd-cgtop showing the real CPU consumption of the container that is under the threshold of 100\%}\label{fig:cgtop}
 \end{figure}
 As last test for this section, we try to deploy another payload on our cluster. This time, the \gls{cpu} and \gls{ram} limits will be much higher than the remaining resources.
-On deployment with \gls{qos} class \emph{Guaranteed} runs already on the cluster. What will happen if we try to schedule another deployment with 4 \glspl{cpu} and 8000MB memory?
+One deployment with \gls{qos} class \emph{Guaranteed} runs already on the cluster. What will happen if we try to schedule another deployment with 4 \glspl{cpu} and 8000MB memory?
 The \emph{kubernetes-avionics-playground} has another deployment file named \emph{too\_much.yaml}. When deploying it (\emph{minikube kubectl apply -- -f too\_much.yaml})
 and verify the deployment (\emph{minikube kubectl get pods}) it becomes visible that the status is on \emph{Pending} and 0/1 containers are ready. \emph{minikube kubectl get events}
 reports that scheduling failed, because of insufficient \gls{cpu} and insufficient memory. It did work! Kubernetes prevented the deployment, because of insufficient resources.
@@ -1575,12 +1575,12 @@ The \gls{cpu} visualizer confirms the \emph{htop} output.
 \section{Testing network isolation}
 This short section will cover network isolation. Network isolation helps with fault isolation, because it prevents other services from affecting services over the network, for example accidentally creating too much network traffic.
 The directory \emph{scenario4} covers this section in the \emph{kubernetes-avionics-playground} repository. First, we have to delete the current minikube instance again \emph{minikube delete} and re-create it
-with a custom \glsfirst{cni} plugin called \emph{calico}: \emph{minikube start --cpus 4 --memory 4096 --vm --cni=calico}. \emph{Calico} is needed, because the default KubeProxy components provides no network isolation
+with a custom \glsfirst{cni} plugin called \emph{calico}: \emph{minikube start --cpus 4 --memory 4096 --vm --cni=calico}. \emph{Calico} is needed, because the default KubeProxy components provide no network isolation
 in form of network policies. With the new cluster up and running we can deploy one test server container running the web server \emph{Nginx} and one client container running the \gls{http} tool \emph{cURL}.
 \emph{cURL} allows us to invoke \gls{http} requests on the command line. \emph{minikube kubectl apply -- -f deployments.yaml} starts both deployments. Next, we verify that the client container can reach the server
 container via executing \emph{cURL}: \emph{minikube kubectl exec deploy/client -- -- curl -I --silent 10.244.120.67} (the server container's \gls{ip} address is different on every cluster. The command \emph{minikube kubectl get pods -- -o wide} prints the \gls{ip} addresses for all pods).
 \autoref{lst:curlsuccess} depicts our success. The \gls{http} request has been sent successfully and the server container answered it, hence there is no network isolation in place yet. In the next step, we activate a network policy as described in \autoref{lst:netpol}.
-Line 6 has an empty pod selector, this means that the network policy will apply to all pods. Line 7-9 describe the policy types: ingress and egress. Line 10 sets the ingress policy to an empty list, blocking all incoming traffic.
+Line 6 has an empty pod selector, this means that the network policy will apply to all pods. Line 7-9 describes the policy types: ingress and egress. Line 10 sets the ingress policy to an empty list, blocking all incoming traffic.
 Lines 11-19 defines an egress rule for all namespaces to the pod that matches the labels \emph{k8s-app: kube-dns} on port 53 and protocol \gls{udp}, allowing only \gls{dns} traffic. \autoref{lst:curlfailure} reports the result
 of the same command with network policies enabled, showing that the command fails, because the connection is running into a timeout. The network isolation works.
 \begin{minipage}{\linewidth}
@@ -1644,7 +1644,7 @@ in this area and a good entrypoint for the search for more connection points bet
 
 \section{Limitations}
 Even though this thesis provides a detailed overview over Kubernetes, avionics and modern container technologies. This thesis has a few weak spots. First of all, this thesis is far away from presenting
-a full overview to Kubernetes. Kubernetes is much larger than introduced in this thesis and grows rapidly due to massive contributions to big global players like Google, Intel, IBM, Microsoft or Amazon.
+a full overview to Kubernetes. Kubernetes is much larger than introduced in this thesis and grows rapidly due to massive contributions by big global players like Google, Intel, IBM, Microsoft or Amazon.
 Kubernetes offers much more \gls{api} functionality than described in this thesis and has numerous sub projects extending Kubernetes or extending the Cloud-Native ecosystem in general. \autoref{fig:landscape}
 gives a feeling for the countless number of services and software projects related to this technology. It is possible that this thesis will not be up to date in the next years, due to Kubernetes' fast development
 cycles. Secondly, this thesis is missing depth in certain areas. Providing the necessary depth would have smashed the time and place constraints of this thesis, but this also means that there is plenty of more research
