@@ -730,15 +730,15 @@ While the implementations of the \glsfirst{cri} provides basic runtime functiona
 an interface for running containers is not enough. The usecases for containers became more complex and orchestration services became
 distributed over large network topologies. This distribution lead to the necessity of standardized networking and storage interfaces.
 These interfaces are called \glsfirst{cni} and \glsfirst{csi}. This section summarizes both interfaces and gives a good introduction.
-However, this section is not meant as complete guide for implementing these interfaces. \glspl{csi} provide an interface for new storage providers.
+However, this section is not meant as complete guide for implementing these interfaces. CSIs provide an interface for new storage providers.
 A storage provider is the vendor of the plugin implementation\cite{CSISpec}. Storage providers can be providers for local or remote storage.
 Every local storage differs and there are different ways on a system to provide storage for an application. Local Storage can be offered
 via device mappers, the \gls{lvm}, raw block devices, volume groups or many other operating system and hardware dependent systems. Remote
-storage equally complicated with additional network capabilities and protocols, such like \gls{nfs} or ceph (the distributed, fault-tolerant storage platform).
+storage is equally complicated due to additional network capabilities and protocols, such like \gls{nfs} or ceph (the distributed, fault-tolerant storage platform).
 Each of these storage providers have a different \gls{api} and different ways to read and write data on them.
 Container orchestrators implement the \gls{csi}. Communication between the \gls{csi} plugin and the container orchestrator happens over \gls{rpc}. The most common \gls{rpc} protocol
 in the cloud-native environment is \gls{grpc}. \gls{grpc} (invented in 2016 by Google) has the huge advantage that it is language independent, supports a very
-simple service definition via Protocol Buffers and bi-directional streaming with several security features like authentication\cite{GRPCConcepts}.
+simple service definition via Protocol Buffers and bi-directional streaming with several security features, for instance authentication\cite{GRPCConcepts}.
 Protocol Buffers is an \gls{idl}. \glspl{idl} offer a, for the developer, convenient way to describe an \gls{rpc} interface in a language independent and
 human-readable way. \gls{grpc} and Protocol Buffers are the tools of choice for the \gls{csi}. The \gls{csi} presents basic functionality for 
 dynamic provisioning of volumes (on-demand provisioning), attaching or detaching volumes, mounting or unmounting volumes from an orchestration node, creating or deleting snapshots
@@ -776,9 +776,9 @@ These differences will be explained in more detail in the following sections.
 \end{figure}
 In this section, this thesis explores the architecture of Kubernetes. \autoref{fig:kubernetes} depicts a Kubernetes cluster with three control nodes and three worker nodes. Many control nodes form a control plane.
 Control nodes are responsible for managing the cluster, while worker nodes are carrying the actual application payload. In case of an airplane the worker nodes could, for example, carry applications for controlling
-the cabin temperature, lights or the entertainment system. Each node is connected to each other via a reliable and highly available network plane (symbolized by a switch in the middle). All nodes consist of a
+the cabin temperature, lights or the entertainment system. Each node is connected to each other via a reliable and highly available network plane (symbolized by a switch in the middle). All nodes consist of
 an operating system (Linux), a container runtime, a KubeProxy and a Kubelet. The operating system is very often a highly specialized Linux distribution, for instance Flatcar Linux\cite{FlatcarLinux} or Fedora's CoreOS\cite{FedoraCoreOS}.
-Specialized Linux distributions have the huge advantage of being very minimal, high secure and require low maintenancy. They accomplish this via only shipping the Linux kernel, an init and service daemon like systemd\cite{systemd}
+Specialized Linux distributions have the huge advantage of being very minimal, high secure and low maintenancy requirements. They accomplish this via only shipping the Linux kernel, an init and service daemon like systemd\cite{systemd}
 and a very small read-only base system. System upgrades are conducted through ostree image updates. The ostree is the operating system tree containing the base system. Contrary to other traditional Linux distributions like Debian,
 these specialized Linux container operating systems do not update software independently. Instead, the system upgrade is conducted via upgrading the whole base system at once. This procedure allows a very high testability, reliability
 and a lower maintenance compared to traditional Linux distributions. On top of the operating system is the container runtime, popular container runtimes are Containerd\cite{Containerd} or cri-o\cite{CRIO}. Docker was another famous
@@ -788,7 +788,7 @@ Additional components of a control node are an etcd\cite{etcd} instance, a Kube-
 and desired state. Every change on the Kubernetes cluster will be stored in the etcd cluster running distributed on all control nodes. Concensus is achieved via Raft, an advanced concensus algorithm proposed
 by the Stanford University\cite{ongaro2013search}\cite{ongaro2014search}. Raft, that stands for replicant and fault-tolerant, implements consistency and partition tolerance as defined by Eric Brewer's CAP-theorem\cite{brewer2017spanner}.
 Eric Brewer's CAP theorem states that a distributed system can only implement two of three properties of the CAP theorem. These three properties are consistency, availability and partition tolerance. Consistency is when each node
-has the newest data, availability is when all read and write requests are always successful and partition tolerance means that the distributed continues to operate even when not all nodes are available\cite{bijlsma2020distributed}.
+has the newest data, availability is when all read and write requests are always successful and partition tolerance means that the distributed cluster continues to operate even when not all nodes are available\cite{bijlsma2020distributed}.
 Raft guarantees consistency and partition tolerance, but it cannot guarantee availability due to unknown factors like network outages.  Instead of using time, Raft uses election terms and roles for each node. Everytime an election is held,
 Raft will increment the term counter. On initialization all nodes have the role \emph{follower} and the term counter on each node is zero. The first election term begins with one follower nominating itself as \emph{candidate} and
 advertising this nomination to all other nodes. The other nodes will react with an acknowledgement and the candidate node will be promoted to a \emph{leader}. The leader node sends heartbeats to every other node in the cluster.
@@ -810,11 +810,11 @@ shows the bootstrapping process of a single node Kubernetes cluster via Minikube
 list all Kubernetes \gls{api} resources via the command: \emph{minikubectl kubectl api-resources -- -o name}. \autoref{lst:apiResources} lists the most important Kubernetes \gls{api} resources.
 Pods consist of one or more containers. Configmaps store configuration data. Limitranges allow configuring resource constraints for deployments. Namespaces group resources and allow isolation between these groups.
 Nodes represent the node configuration. Storageclasses are classes for persistent storage, for example SSD hard disk storage or a network storage. Persistentvolumes hold information about persistent storage volumes for a given storage class.
-persistentvolumeclaims represent the relationship between a container and a persistent volume. Podtemplates are re-usable templates for pods. Resourcequotas define a hard limit for resource consumption for a namespace.
+Persistentvolumeclaims represent the relationship between a container and a persistent volume. Podtemplates are re-usable templates for pods. Resourcequotas define a hard limit for resource consumption for a namespace.
 Secrets provide secret information, for instance secret configuration data. Services expose pods to the cluster-internal or external network. Daemonsets deploy pods on every cluster worker node. Deployments are a generic form of deploying pods, heavily modifiable.
 Replicasets are a mirror of the current state of replicas of a pod in the cluster. Statefulsets ensure that pods are deployed in a specific order and with a fixed set of volumes. Horizontalpodautoscalers provide the ability to up- or downscale pods dynamically depending on resource consumption.
 Cronjobs provide the ability to run pods on a fixed datetime. Jobs provide the ability to run pods just once. Ingresses are entrypoints for internal or external services, typically via HTTP/HTTPS. Networkpolicies provide isolation between pods on network layer.
-poddisruptionbudgets manage budgets for pod failure or planned pod movements between nodes. Serviceaccounts manage access to \gls{api} resources via a \gls{rbac} model. Clusterrolebindings are bindings for roles on cluster level and service accounts.
+Poddisruptionbudgets manage budgets for pod failure or planned pod movements between nodes. Serviceaccounts manage access to \gls{api} resources via a \gls{rbac} model. Clusterrolebindings are bindings for roles on cluster level and service accounts.
 Clusterroles are roles on cluster level specifying the permissions for a service account via verbs: read, write, etc. Rolebindings are bindings for roles on namespace level, establishing the relationship between a role and a service account.
 Roles work on namespace level and provide permissions for a service account via verbs. The following sections will explain some of the prior mentioned \gls{api} resources in more detail.
 
@@ -897,7 +897,7 @@ a running Kubernetes (for instance via Minikube) and the Kubernetes client softw
 \gls{http} methods, such like \emph{GET}, \emph{PUT} and \emph{DELETE}. \autoref{lst:pod} presents a \gls{yaml} deployment file for a Kubernetes pod. Line 1-7 specify the \gls{api} version, the \gls{api} resource kind (pod) and additional metadata, like the name,
 target namespace and additional labels for easier selection and identification of the running pod. With line 8 the actual Kubernetes pod definition starts with a list of containers (line 9). The showed pod definition has only one container called \emph{web} 
 with the Docker image \emph{docker.io/nginx:1.12.5}. Notice how the sandbox container is not listed in the pod definition. Sandbox containers are added to the pod automatically. Line 12 exposes the nginx webserver in the container via port 80 and \gls{tcp} (a stateful network protocol for sending and receiving data). Line 16 specifies resource limits and requests for the container.
-The container can use up to 100 milli \gls{cpu} (one \gls{cpu} consists of 1000 milli \gls{cpu} units) and 100 megabytes of \gls{ram}. Milli \gls{cpu} allows to partition \gls{cpu} consumption in reserved units. The limit limitis the container \gls{cpu} usage and the requests field
+The container can use up to 100 milli \gls{cpu} (one \gls{cpu} consists of 1000 milli \gls{cpu} units) and 100 megabytes of \gls{ram}. Milli \gls{cpu} allows to partition \gls{cpu} consumption in reserved units. The limit limits the container \gls{cpu} usage and the requests field
 tells the Kube-Scheduler how much the container needs. If the limits and request matches each other, the Kubernetes pod is sorted into the \glsfirst{qos} class \emph{Guaranteed}\cite{KubernetesQOS}. \gls{qos} classes are used for scheduling containers on the cluster.
 Kubernetes supports the following \gls{qos} classes: \emph{Guaranteed} states that the container will have a guaranteed resource consumption. If a cluster node is overprovisioned, other less important containers will be re-scheduled on a different node or 
 stopped in favor of guaranteed containers. \emph{Burstable} states that a container is scheduled on a cluster with a fixed request value, but the container is allowed to create resource consumption bursts. This is, for instance,
@@ -938,7 +938,7 @@ spec:
 \end{minipage}
 \subsection{Namespaces, LimitRanges and ResourceQuotas}
 A namespace groups resources logically for better filtering, selecting and operating on Kubernetes \gls{api} resources.
-Most Kubernetes \gls{api} resources can be namespaced (placed into a namespace). On their own namespaces provide no network isolation.
+Most Kubernetes \gls{api} resources can be namespaced (placed into a namespace). On their own, namespaces provide no network isolation.
 For strict network isolation a \glsfirst{cni} plugin is necessary and the definition of network policies via the networkPolicy \gls{api}
 resource. \autoref{lst:namespace} depicts a definition of one namespace called entertainment, a limitRange and resourceQuota.
 The namespace works as environment for other \gls{api} resources, like deployments or pods. The limitRange \gls{api} resource
@@ -946,9 +946,9 @@ allows to set limits and requests for each created container in the selected nam
 setting hard limits for the namespace as a whole. The resourceQuota in \autoref{lst:namespace} specifies a maximum limit
 of 10 pods in the entertainment namespace. Furthermore, it sets a limit and request value for the \gls{cpu} and \gls{ram} for
 the entertainment namespace to one \gls{cpu} and one gigabyte. Thus, the Kubernetes-Scheduler enforces these limits, making it impossible
-to schedule more than 10 pods in the entertainment namespace and constantly monitoring the resource consumption. If a pod exceeds their
+to schedule more than 10 pods in the entertainment namespace and constantly monitores the resource consumption. If a pod exceeds its
 limits, the pod will be either throttled (in case of \gls{cpu} bursts) or the process in the pod container will be killed {in case of too high \gls{ram} consumption}.
-These three \gls{api} resources enforce a very tight control over resources and enhances the reliability of applications running on the cluster.
+These three \gls{api} resources enforce a very tight control over resources and enhances the reliability of applications running in the cluster.
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Namespace definition for a namespace called entertainment with limitRange and ResourceQuota},label={lst:namespace}]
@@ -989,8 +989,8 @@ spec:
 \subsection{Deployments, Statefulsets and Daemonsets}
 Multiple instances of the same Kubernetes pod are called a replicaset. A deployment manages pods and replicasets. With deployments it is possible to define a desired state of an application. Kubernetes tries to match
 this desired state via spinning up the pods and replicas of these pods, as defined in the deployment's definition. \autoref{lst:deployment} demonstrates a Kubernetes deployment representation in \gls{yaml}.
-Line 18 to 31 are similar to the pod definition in \autoref{lst:pod}. The most importants of the deployment definition are from Line 9 to Line 16. These lines specify the replica count, a label selector
-and the begin of the pod template definition. The replica count in line 9 sets the number of replicas. This means that Kubernetes tries to schedule three pods of as replicaset running the same containers.
+Line 18 to 31 are similar to the pod definition in \autoref{lst:pod}. The most important parts of the deployment definition are from Line 9 to Line 16. These lines specify the replica count, a label selector
+and the begin of the pod template definition. The replica count in line 9 sets the number of replicas. This means that Kubernetes tries to schedule three pods of a replicaset, running the same containers.
 The label selector in line 10 selects the pod definitions that should be scheduled by label. Line 16 shows the matched labels. Statefulsets and daemonsets are very similar to deployments.
 The major differences between deployments and statefulsets ensure that all pods are scheduled in a persistent order and pods get a number suffix instead of a
 random string suffix when scheduled on the cluster\cite{KubernetesStatefulset}. A persistent order and pod uniqueness is notably important for stateful applications with storage or sticky network sessions. A daemonset schedules the pod on every node. 
@@ -1032,7 +1032,7 @@ spec:
 \end{lstlisting}
 \end{minipage}
 \subsection{Configmaps and Secrets}
-Application requires configuration. Either the configuration has been embedded into the application or the configuration is via an external source, for instance a configuration file or a configuration service that offers a configuration via network.
+Applications require configuration. Either the configuration has been embedded into the application or the configuration happens via an external source, for instance a configuration file or a configuration service that offers a configuration via network.
 Kubernetes does support both methods. With \gls{oci} containers it is possible to embed a default configuration directly in the container image. However, this approach is very unflexible and static, because it does not allow dynamic reconfiguration.
 Dynamic reconfiguration can be achieved via setting new configuration via the network or via swapping the configuration files. The first option requires more development work, because a dynamic reconfiguration over, for example a web interface,
 has to be embedded into the application. The second option only requires to read a file. This file read can be either triggered through a file change (file watcher) or via an application restart. It also means, that the container runtime must
@@ -1149,12 +1149,12 @@ It is not uncommon for aviation companies to either use open source software dur
 involves pushing code differences (commits) to a \gls{scm} system (A in \autoref{fig:supplychains}). Possible vulnerabilities involve an attacker in the company's network with access to the \gls{scm} system (for example Git, SVN or CVS),
 a stolen laptop with the developer's \gls{scm} credentials or code from a malicious code contributor (more common in open source software). In May 2021 researchers 
 of the University of Minnoesota managed to contribute vulnerable code to the Linux kernel \gls{scm}\cite{LinuxVulnerability}\cite{GoogleSecurityBlog}. B in \autoref{fig:supplychains} involves a direct access to the \gls{scm} system. Contrary to A, where
-access to the \gls{scm} is achieved through a developer, B involves exploiting the \gls{scm} system directly and altering the content of the code in the \gls{scm}. Another famous example for such an incident is the compromise
-of the PHP development team's \gls{scm} system in 2021\cite{PHPVulnerability}\cite{GoogleSecurityBlog}. PHP is one of the core languages behind the \gls{www} annd had a market share of 79.2\%\cite{PHPUsage}. There is no imagination needed for what could have
+access to the \gls{scm} is achieved through a developer, B involves exploiting the \gls{scm} system directly and altering the content of the code in the \gls{scm}. Another famous example for such an incident is the corruption
+of the PHP development team's \gls{scm} system in 2021\cite{PHPVulnerability}\cite{GoogleSecurityBlog}. PHP is one of the core languages behind the \gls{www} and had a market share of 79.2\%\cite{PHPUsage}. There is no imagination needed for what could have
 happened, if this malicious code would have been distributed to all PHP systems world wide via a new version release. The same can happen with any other programming language the aviation industry relies on (C, Ada, C++\cite{LanguagesInAerospace}).
 During the next step in the software supply chain the code gets build, either via the developer or, the more common approach, via a build system. In this step, multiple attacks can happen. First of all, the code that should be build
 could get replaced during the build process. One occassion of such a scenario was, when Webmin's build system got feeded with malicious code, thus building a vulnerable Webmin release (C in \autoref{fig:supplychains})\cite{WebminVulnerability}\cite{GoogleSecurityBlog}. 
-Webmin is a web-based interface for server administration, hence it is very critical infrastructure, because it allows direct access on the server with admin privileges. Some other scenario is a direct compromise of the build system, accepting correct code, but altering it
+Webmin is a web-based interface for server administration, hence it is very critical infrastructure, because it allows direct access on the server with admin privileges. Some other scenario is a direct corruption of the build system, accepting correct code, but altering it
 directly on the build server or injecting additional malware into the normally harmless build. This scenario happened in the big SolarWinds hack mentioned earlier\cite{Sunspot}\cite{GoogleSecurityBlog}. Vulnerability E in \autoref{fig:supplychains} describes
 the addition of malicious software dependencies. The project's software supply chain is secure, but software dependencies have been added, that are either poorly maintained or that got victim of a software supply chain attack themselves. Some attackers,
 inject vulnerable dependencies via contributing to the software via a harmless patch with a new dependency and then after a few weeks they add a vulnerability to the dependency and they hope that the victim will update their dependencies without
@@ -1167,10 +1167,10 @@ the software. The name of this method is called typosquatting and a good example
 How to protect software supply chains? Due to the increased appearance of software supply chain compromises and the increasing pressure of the US government the Linux foundation came up with a new standard called \gls{slsa}\cite{SLSA}.
 \gls{slsa} proposes four different levels for measuring and classifying software supply chain security. These levels are considered as milestones leading to full software supply chain protection with \gls{slsa} level four. The first \gls{slsa} level
 states that the software must be build scripted and the supply chain must attach provenance. Provenance is metadata about dependencies, the software itself and the build process\cite{SLSALevels}. Scripted means that the supply chain must be automated.
-Automation protects against human errors and a foundation for all other \gls{slsa} levels. Attaching provenance or a \glsfirst{sbom}  has several advantages. First, it allows to store metadata about the dependencies and the software itself.
+Automation protects against human errors and is a foundation for all other \gls{slsa} levels. Attaching provenance or a \glsfirst{sbom}  has several advantages. First, it allows to store metadata about the dependencies and the software itself.
 With the help of this additional metadata it is possible to search for security vulnerabilities in the product via version numbers and other software identifiers\cite{pernpeintner2019you}. Second, it gives a complete list of contents. This allows identifying missing content
 and unwanted content (for instance malicious dependencies that got injected through a hacked build process). Third, it gives an overview over all used licenses. With the wide usage of open source software it is necessary to gain information about
-the software licenses of dependencies to avoid license infringements (for example using an open source license that prohibits the use in proprietary software)\cite{SBOM}. An \gls{sbom} must be machine readable for automation and evaluating the gained data
+the software licenses of dependencies to avoid license infringements (for example using an open source license that prohibits the use in proprietary software)\cite{SBOM}. A \gls{sbom} must be machine readable for automation and must evaluate the gained data
 automatically. Level two of \gls{slsa} requires the use of \gls{scm} and a hosted build process with authenticated provenance\cite{SLSALevels}. Through \gls{scm} it is possible to track every step of work on the source code in a commit log. Some \gls{scm} like
 git even allow cryptographically signing each commit and thus authenticating every commit in the \gls{scm}. Signing commits offers additional security for verifying that the code has been submitted by a list of allowed developers. Having the build process
 hosted, secures the build process and isolates it to a single host. A single host is a lot easier to protect and harden than a higher number of developer workstations or laptops. The last requirement for \gls{slsa} level two is authenticated provenance.
